@@ -2,7 +2,7 @@
 require_once 'core.php';
 
 //Get destination address
-$destination = isset($_GET['destination']) ? $_GET['destination'] : 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
+$destination = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
 
 // Get the API client and construct the service object.
 $client = getClient();

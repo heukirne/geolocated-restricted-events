@@ -1,9 +1,6 @@
 <!-- Special version of Bootstrap that only affects content wrapped in .bootstrap-iso -->
 <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" /> 
 
-<!-- Inline CSS based on choices in "Settings" tab -->
-<style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}</style>
-
 <!-- HTML Form (wrapped in a .bootstrap-iso div) -->
 <div class="bootstrap-iso" style="margin-right: auto; margin-left: auto;">
  <div class="container-fluid">
@@ -73,19 +70,19 @@
       <div class="col-sm-10">
        <div class="radio-inline">
         <label class="radio">
-         <input name="metragem" type="radio" value="First Choice"/>
+         <input name="metragem" type="radio" value="300"/>
          até 300m&sup2;
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="metragem" type="radio" value="Second Choice"/>
+         <input name="metragem" type="radio" value="500"/>
          até 500m&sup2;
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="metragem" type="radio" value="Third Choice"/>
+         <input name="metragem" type="radio" value="1000"/>
          maior que 500m&sup2;
         </label>
        </div>
@@ -94,24 +91,30 @@
 
 	<div class="form-group col-sm-10">
       <label class="control-label" for="infra">
-       Selecione a infraestrutura <span class="asteriskField">*</span>
+       Selecione quantos ambiente tem na infraestrutura <span class="asteriskField">*</span>
       </label>
       <div class="col-sm-10">
        <div class="radio-inline">
         <label class="radio">
-         <input name="infra" type="radio" value="First Choice"/>
-         até 3 ambientes
+         <input name="infra" type="radio" value="0"/>
+         sem infra
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="infra" type="radio" value="Second Choice"/>
-         até 5 ambientes
+         <input name="infra" type="radio" value="3"/>
+         até 3
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="infra" type="radio" value="Third Choice"/>
+         <input name="infra" type="radio" value="5"/>
+         até 5
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="infra" type="radio" value="10"/>
          mais que 5
         </label>
        </div>
@@ -213,16 +216,16 @@
 				return false;
 			}
 
-            var json = [ 
-            	{ text: '13:15 (recomendado)', val: '13:15' },
-            	{ text: '14:20', val: '14:20' },
-            	{ text: '16:00', val: '16:00' },
-            ];
+			$.getJSON( "check_avaiable.php", function( data ) {
 
-            $('#select').empty();
-            $.each(json, function(i, obj){
-                    $('#select').append($('<option>').text(obj.text).attr('value', obj.val));
-            });
+				console.log(data);
+
+			    $('#horario').empty();
+			    $.each(data, function(i, obj){
+			            $('#horario').append($('<option>').text(obj.val).attr('value', obj.key));
+			    });
+			});
+
 		});
 
 	})
