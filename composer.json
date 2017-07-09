@@ -1,0 +1,17 @@
+{
+    "name": "henrique/geolocated-restricted-events",
+    "description": "Event scheduled based on geolocation restrictions",
+    "type": "library",
+    "require": {
+        "google/apiclient": "^2.1",
+        "guzzlehttp/guzzle": "^6.3.0"
+    },
+    "license": "Apache License 2.0",
+    "authors": [
+        {
+            "name": "Henrique Dias",
+            "email": "heukirne@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
