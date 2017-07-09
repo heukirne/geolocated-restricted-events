@@ -8,7 +8,6 @@ $destination = isset($_GET['destination']) ? $_GET['destination'] : 'Avenida Ipi
 $client = getClient();
 $service = new Google_Service_Calendar($client);
 
-
 // Print the next 10 events on the user's calendar.
 $calendarId = 'primary';
 $optParams = array(
@@ -22,33 +21,31 @@ $results = $service->events->listEvents($calendarId, $optParams);
 if (count($results->getItems()) == 0) {
   print "No upcoming events found.\n";
 } else {
-  print "Upcoming Location events:\n\n";
+  print "Upcoming Location events:\n";
   foreach ($results->getItems() as $event) {
   	
-  	if ($event->location) {
+  	if ($event->location && !empty($event->end->dateTime)) {
 
-	    $start = $event->start->dateTime;
-	    if (empty($start)) {
-	      $start = $event->start->date;
-	    }
-	    printf("Event Name: %s (%s)\n", $event->getSummary(), $start);
+	    print("\nEvent Name: " . $event->getSummary() . "\n");
+	    print("End Time: " . $event->end->dateTime . "\n");
+
 
   		$params = '&origins=' . urlencode($event->location);
     	$params .= '&destinations=' . urlencode($destination);
 
-	    printf("\tNow we're looking up the distance between \n" .
+	    print("\tNow we're looking up the distance between \n" .
 	    		"\t'$destination' and \n" .
 	    		"\t'" . $event->location . "\n");
 	    $element = getMatrixDistance($params);
 
 	    if (isset($element) && $element->status == "OK") {
-			$distance = $element->distance->text;
-			$duration = $element->duration->text;
+			$distance = $element->distance;
+			$duration = $element->duration;
 
-	    	printf("\tDistance: " . $distance . "\n");
-	    	printf("\tDuration: " . $duration . "\n");
+	    	print("\tDistance: " . $distance->text . ", " . $distance->value . "\n");
+	    	print("\tDuration: " . $duration->text . ", " . $duration->value . "\n");
 	    } else {
-	    	printf("\tNo driving route found! \n");
+	    	print("\tNo driving route found! \n");
 	    }
 
   	}
