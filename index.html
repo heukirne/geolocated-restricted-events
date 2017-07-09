@@ -10,6 +10,7 @@
   <div class="row">
    <div class="col-md-6 col-sm-6 col-xs-12">
     <form class="form-horizontal" id="calendar_send" method="post">
+
      <div class="form-group ">
       <label class="control-label col-sm-2 requiredField" for="address">
        Endere&ccedil;o
@@ -21,6 +22,7 @@
        <input class="form-control" id="address" name="address" type="text"/>
       </div>
      </div>
+
      <div class="form-group ">
       <label class="control-label col-sm-2 requiredField" for="date">
        Data
@@ -32,6 +34,7 @@
        <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
       </div>
      </div>
+
      <div class="form-group ">
       <label class="control-label col-sm-2 requiredField" for="email">
        Email
@@ -43,20 +46,43 @@
        <input class="form-control" id="email" name="email" type="text"/>
       </div>
      </div>
+
      <div class="form-group">
       <div class="col-sm-10 col-sm-offset-2">
-       <button class="btn btn-primary " name="submit" type="submit">
+       <button class="btn btn-primary " name="submit" type="button" id="checkAvaiable">
         Verificar Disponibilidade
        </button>
       </div>
      </div>
+
+     <div class="form-group ">
+      <label class="control-label col-sm-2" for="select">
+       Selecione um horário
+      </label>
+      <div class="col-sm-10">
+       <select class="select form-control" id="select" name="select">
+        <option value="">
+         Verifique a disponibilidade
+        </option>
+       </select>
+      </div>
+     </div>
+
+     <div class="form-group">
+      <div class="col-sm-10 col-sm-offset-2">
+       <button class="btn btn-primary " name="submit" type="submit">
+        Enviar Agendamento
+       </button>
+      </div>
+     </div>
+
     </form>
    </div>
   </div>
  </div>
 </div>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=APIKEY&libraries=places"></script>
 <!-- Extra JavaScript/CSS added manually in "Settings" tab -->
 <!-- Include jQuery -->
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
@@ -120,7 +146,24 @@
 				alert('Todos os campos sao obrigatorios.');
 				return false;
 			}
-			
+		});
+
+		$('#checkAvaiable').click(function(){
+			if ($('#address').val() == "" && $('#date').val() == "" ) {
+				alert('Preencha o endereço e a data!');
+				return false;
+			}
+
+            var json = [ 
+            	{ text: '13:15 (recomendado)', val: '13:15' },
+            	{ text: '14:20', val: '14:20' },
+            	{ text: '16:00', val: '16:00' },
+            ];
+
+            $('#select').empty();
+            $.each(json, function(i, obj){
+                    $('#select').append($('<option>').text(obj.text).attr('value', obj.val));
+            });
 		});
 
 	})
