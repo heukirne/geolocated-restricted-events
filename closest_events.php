@@ -48,7 +48,7 @@ if (count($results->getItems()) == 0) {
 	    	printf("\tDistance: " . $distance . "\n");
 	    	printf("\tDuration: " . $duration . "\n");
 	    } else {
-	    	printf("\tNo information found! \n");
+	    	printf("\tNo driving route found! \n");
 	    }
 
   	}

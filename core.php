@@ -33,11 +33,6 @@ function getClient() {
   }
   $client->setAccessToken($accessToken);
 
-  // Refresh the token if it's expired.
-  if ($client->isAccessTokenExpired()) {
-    $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-    file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
-  }
   return $client;
 }
 
@@ -81,22 +76,24 @@ function getMatrixDistance($params) {
   $matrixCachePath = expandHomeDirectory(MATRIX_CACHE);
   if (file_exists($matrixCachePath)) {
     $matrixCache = json_decode(file_get_contents($matrixCachePath), true);
-
-    if (isset($matrixCache[$hash])) {
-
-      $element = $matrixCache[$hash];
-      return json_decode(json_encode($element), FALSE);
-
-    } else {
-      
-      $response = $guzzleClient->request('GET', $gmatrix . $params);
-      $body = json_decode($response->getBody());
-
-      $matrixCache[$hash] = $body->rows[0]->elements[0];
-      file_put_contents('matrix_distance.json', json_encode($matrixCache));
-
-      return $body->rows[0]->elements[0];
-    }
+  } else {
+    $matrixCache = [];
   }
-  return "error";
+
+  if (isset($matrixCache[$hash])) {
+
+    $element = $matrixCache[$hash];
+    return json_decode(json_encode($element), FALSE);
+
+  } else {
+
+    $response = $guzzleClient->request('GET', $gmatrix . $params);
+    $body = json_decode($response->getBody());
+
+    $matrixCache[$hash] = $body->rows[0]->elements[0];
+    file_put_contents('matrix_distance.json', json_encode($matrixCache));
+
+    return $body->rows[0]->elements[0];
+  }
+
 }
