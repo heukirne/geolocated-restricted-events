@@ -5,75 +5,130 @@
 <style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}</style>
 
 <!-- HTML Form (wrapped in a .bootstrap-iso div) -->
-<div class="bootstrap-iso">
+<div class="bootstrap-iso" style="margin-right: auto; margin-left: auto;">
  <div class="container-fluid">
   <div class="row">
    <div class="col-md-6 col-sm-6 col-xs-12">
+
+   	<h2>Agendamento de Fotos</h2> </br>
+
     <form class="form-horizontal" id="calendar_send" method="post">
 
-     <div class="form-group ">
-      <label class="control-label col-sm-2 requiredField" for="address">
-       Endere&ccedil;o
-       <span class="asteriskField">
-        *
-       </span>
+     <div class="form-group col-sm-10">
+      <label class="control-label requiredField" for="address">
+       Endere&ccedil;o <span class="asteriskField">*</span>
       </label>
-      <div class="col-sm-10">
        <input class="form-control" id="address" name="address" type="text"/>
-      </div>
      </div>
 
-     <div class="form-group ">
-      <label class="control-label col-sm-2 requiredField" for="date">
-       Data
-       <span class="asteriskField">
-        *
-       </span>
+     <div class="form-group col-sm-10">
+      <label class="control-label requiredField" for="date">
+       Data <span class="asteriskField">*</span>
       </label>
-      <div class="col-sm-10">
        <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
-      </div>
      </div>
 
-     <div class="form-group ">
-      <label class="control-label col-sm-2 requiredField" for="email">
-       Email
-       <span class="asteriskField">
-        *
-       </span>
-      </label>
-      <div class="col-sm-10">
-       <input class="form-control" id="email" name="email" type="text"/>
-      </div>
-     </div>
-
-     <div class="form-group">
-      <div class="col-sm-10 col-sm-offset-2">
+     <div class="form-group col-sm-10">
        <button class="btn btn-primary " name="submit" type="button" id="checkAvaiable">
         Verificar Disponibilidade
        </button>
-      </div>
      </div>
 
-     <div class="form-group ">
-      <label class="control-label col-sm-2" for="select">
-       Selecione um horário
+     <div class="form-group col-sm-10">
+      <label class="control-label" for="horario">
+       Selecione um horário <span class="asteriskField">*</span>
       </label>
-      <div class="col-sm-10">
-       <select class="select form-control" id="select" name="select">
+       <select class="select form-control" id="horario" name="horario">
         <option value="">
          Verifique a disponibilidade
         </option>
        </select>
+     </div>
+
+     <div class="form-group col-sm-10">
+      <label class="control-label requiredField" for="predio">
+       Nome do Prédio <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="predio" name="predio" type="text"/>
+     </div>
+
+     <div class="form-group col-sm-10">
+      <label class="control-label requiredField" for="proprietario">
+       Proprietário <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="proprietario" name="proprietario" type="text"/>
+     </div>
+
+     <div class="form-group col-sm-10">
+      <label class="control-label requiredField" for="corretor">
+       Corretor <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="corretor" name="corretor" type="text"/>
+     </div>
+
+	<div class="form-group col-sm-10">
+      <label class="control-label" for="metragem">
+       Selecione a metragem <span class="asteriskField">*</span>
+      </label>
+      <div class="col-sm-10">
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="metragem" type="radio" value="First Choice"/>
+         até 300m&sup2;
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="metragem" type="radio" value="Second Choice"/>
+         até 500m&sup2;
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="metragem" type="radio" value="Third Choice"/>
+         maior que 500m&sup2;
+        </label>
+       </div>
       </div>
      </div>
 
-     <div class="form-group">
-      <div class="col-sm-10 col-sm-offset-2">
+	<div class="form-group col-sm-10">
+      <label class="control-label" for="infra">
+       Selecione a infraestrutura <span class="asteriskField">*</span>
+      </label>
+      <div class="col-sm-10">
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="infra" type="radio" value="First Choice"/>
+         até 3 ambientes
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="infra" type="radio" value="Second Choice"/>
+         até 5 ambientes
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="infra" type="radio" value="Third Choice"/>
+         mais que 5
+        </label>
+       </div>
+      </div>
+     </div>
+
+     <div class="form-group col-sm-10">
+      <label class="control-label requiredField" for="email">
+       Email <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="email" name="email" type="text"/>
+     </div>
+
+     <div class="form-group col-sm-10">
        <button class="btn btn-primary " name="submit" type="submit">
         Enviar Agendamento
        </button>
-      </div>
      </div>
 
     </form>
@@ -82,7 +137,7 @@
  </div>
 </div>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=APIKEY&libraries=places"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
 <!-- Extra JavaScript/CSS added manually in "Settings" tab -->
 <!-- Include jQuery -->
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
@@ -133,6 +188,10 @@
 
 		$('#calendar_send').submit(function(){
 			var isValid = true;
+
+			if ($('[name=infra]:checked').length == 0) { isValid = false; }
+			if ($('[name=metragem]:checked').length == 0) { isValid = false; }
+
 			$("input").each(function() {
 			   var element = $(this);
 			   if (element.val() == "") {
