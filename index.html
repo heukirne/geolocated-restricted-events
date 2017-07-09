@@ -33,7 +33,7 @@
 
      <div class="form-group col-sm-10">
       <label class="control-label" for="horario">
-       Selecione um horário <span class="asteriskField">*</span>
+       Selecione um hor&aacute;rio <span class="asteriskField">*</span>
       </label>
        <select class="select form-control" id="horario" name="horario">
         <option value="">
@@ -44,14 +44,14 @@
 
      <div class="form-group col-sm-10">
       <label class="control-label requiredField" for="predio">
-       Nome do Prédio <span class="asteriskField">*</span>
+       Nome do Pr&eacute;dio <span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="predio" name="predio" type="text"/>
      </div>
 
      <div class="form-group col-sm-10">
       <label class="control-label requiredField" for="proprietario">
-       Proprietário <span class="asteriskField">*</span>
+       Propriet&aacute;rio <span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="proprietario" name="proprietario" type="text"/>
      </div>
@@ -71,13 +71,13 @@
        <div class="radio-inline">
         <label class="radio">
          <input name="metragem" type="radio" value="300"/>
-         até 300m&sup2;
+         at&eacute; 300m&sup2;
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
          <input name="metragem" type="radio" value="500"/>
-         até 500m&sup2;
+         at&eacute; 500m&sup2;
         </label>
        </div>
        <div class="radio-inline">
@@ -103,13 +103,13 @@
        <div class="radio-inline">
         <label class="radio">
          <input name="infra" type="radio" value="3"/>
-         até 3
+         at&eacute; 3
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
          <input name="infra" type="radio" value="5"/>
-         até 5
+         at&eacute; 5
         </label>
        </div>
        <div class="radio-inline">
@@ -159,7 +159,7 @@
 		var date_input=$('input[name="date"]'); //our date input has the name "date"
 		var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
 		date_input.datepicker({
-			format: 'mm/dd/yyyy',
+			format: 'dd/mm/yyyy',
 			container: container,
 			todayHighlight: true,
 			autoclose: true,
@@ -212,7 +212,7 @@
 
 		$('#checkAvaiable').click(function(){
 			if ($('#address').val() == "" && $('#date').val() == "" ) {
-				alert('Preencha o endereço e a data!');
+				alert('Preencha o endereco e a data!');
 				return false;
 			}
 

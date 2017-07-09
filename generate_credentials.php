@@ -25,6 +25,7 @@ function getClient() {
   $client->setScopes(SCOPES);
   $client->setAuthConfig(CLIENT_SECRET_PATH);
   $client->setAccessType('offline');
+  $client->setApprovalPrompt('force');
 
   // Load previously authorized credentials from a file.
   $credentialsPath = expandHomeDirectory(CREDENTIALS_PATH);
@@ -49,6 +50,11 @@ function getClient() {
   }
   $client->setAccessToken($accessToken);
 
+  // Refresh the token if it's expired.
+  if ($client->isAccessTokenExpired()) {
+    $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+    file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+  }
   return $client;
 }
 
@@ -67,3 +73,5 @@ function expandHomeDirectory($path) {
 
 // Get the API client and construct the service object.
 $client = getClient();
+$service = new Google_Service_Calendar($client);
+$calendarList = $service->calendarList->listCalendarList(); //try api

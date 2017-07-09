@@ -2,8 +2,17 @@
 require_once 'core.php';
 
 // Get the API client and construct the service object.
-$client = getClient();
-$service = new Google_Service_Calendar($client);
+try {
+	$client = getClient();
+	$service = new Google_Service_Calendar($client);
+	$calendarList = $service->calendarList->listCalendarList(); //try api
+} catch (Exception $e) {
+	echo json_encode([[ 'key' => 'erro', 'val' => 'Erro ao acessar calendario! :(' ]]);
+	exit();
+}
+
+$address = isset($_GET['address']) ? $_GET['address'] : 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
+$date = isset($_GET['date']) ? $_GET['date'] : date_format(new DateTime('NOW'), 'd/m/Y');
 
 // Print the next 10 events on the user's calendar.
 $calendarId = 'primary';
