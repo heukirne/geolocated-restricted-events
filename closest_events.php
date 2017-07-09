@@ -12,7 +12,7 @@ $service = new Google_Service_Calendar($client);
 // Print the next 10 events on the user's calendar.
 $calendarId = 'primary';
 $optParams = array(
-  'maxResults' => 10,
+  'maxResults' => 20,
   'orderBy' => 'startTime',
   'singleEvents' => TRUE,
   'timeMin' => date('c'),
@@ -22,7 +22,7 @@ $results = $service->events->listEvents($calendarId, $optParams);
 if (count($results->getItems()) == 0) {
   print "No upcoming events found.\n";
 } else {
-  print "Upcoming Location events:\n";
+  print "Upcoming Location events:\n\n";
   foreach ($results->getItems() as $event) {
   	
   	if ($event->location) {
@@ -36,19 +36,19 @@ if (count($results->getItems()) == 0) {
   		$params = '&origins=' . urlencode($event->location);
     	$params .= '&destinations=' . urlencode($destination);
 
+	    printf("\tNow we're looking up the distance between \n" .
+	    		"\t'$destination' and \n" .
+	    		"\t'" . $event->location . "\n");
+	    $element = getMatrixDistance($params);
 
+	    if (isset($element) && $element->status == "OK") {
+			$distance = $element->distance->text;
+			$duration = $element->duration->text;
 
-	    printf("Now we're looking up the distance between \n'$destination' and \n'" . $event->location . "\n");
-	    $body = getMatrixDistance($params);
-	    
-	    if (isset($body) && isset($body->rows[0]) && isset($body->rows[0]->elements[0])) {
-			$distance = $body->rows[0]->elements[0]->distance->text;
-			$duration = $body->rows[0]->elements[0]->duration->text;
-
-	    	printf("Distance: " . $distance . "\n");
-	    	printf("Duration: " . $duration . "\n");
+	    	printf("\tDistance: " . $distance . "\n");
+	    	printf("\tDuration: " . $duration . "\n");
 	    } else {
-	    	printf("No information found!");
+	    	printf("\tNo information found! \n");
 	    }
 
   	}

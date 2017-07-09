@@ -3,7 +3,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
-define('APPLICATION_NAME', 'Google Calendar API PHP Quickstart');
+define('APPLICATION_NAME', 'Geolocated Restricted Events');
 define('CREDENTIALS_PATH', __DIR__ . '/user_credentials.json');
 define('CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
 define('MATRIX_CACHE', __DIR__ . '/matrix_distance.json');
@@ -81,16 +81,22 @@ function getMatrixDistance($params) {
   $matrixCachePath = expandHomeDirectory(MATRIX_CACHE);
   if (file_exists($matrixCachePath)) {
     $matrixCache = json_decode(file_get_contents($matrixCachePath), true);
-    if (isset($matrixCache[$hash])) {
-      $body = $matrixCache[$hash];
-    } else {
-      $matrixCache[$hash] = $body;
-      file_put_contents('matrix_distance.json', json_encode($matrixCache));
 
+    if (isset($matrixCache[$hash])) {
+
+      $element = $matrixCache[$hash];
+      return json_decode(json_encode($element), FALSE);
+
+    } else {
+      
       $response = $guzzleClient->request('GET', $gmatrix . $params);
       $body = json_decode($response->getBody());
 
+      $matrixCache[$hash] = $body->rows[0]->elements[0];
+      file_put_contents('matrix_distance.json', json_encode($matrixCache));
+
+      return $body->rows[0]->elements[0];
     }
   }
-  return $body;
+  return "error";
 }
