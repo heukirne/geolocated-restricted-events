@@ -24,11 +24,10 @@ if (count($results->getItems()) == 0) {
   print "Upcoming Location events:\n";
   foreach ($results->getItems() as $event) {
   	
-  	if ($event->location && !empty($event->end->dateTime)) {
+  	if (!empty($event->location) && !empty($event->end->dateTime)) {
 
 	    print("\nEvent Name: " . $event->getSummary() . "\n");
 	    print("End Time: " . $event->end->dateTime . "\n");
-
 
   		$params = '&origins=' . urlencode($event->location);
     	$params .= '&destinations=' . urlencode($destination);

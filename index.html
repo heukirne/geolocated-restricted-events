@@ -1,0 +1,127 @@
+<!-- Special version of Bootstrap that only affects content wrapped in .bootstrap-iso -->
+<link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" /> 
+
+<!-- Inline CSS based on choices in "Settings" tab -->
+<style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}</style>
+
+<!-- HTML Form (wrapped in a .bootstrap-iso div) -->
+<div class="bootstrap-iso">
+ <div class="container-fluid">
+  <div class="row">
+   <div class="col-md-6 col-sm-6 col-xs-12">
+    <form class="form-horizontal" id="calendar_send" method="post">
+     <div class="form-group ">
+      <label class="control-label col-sm-2 requiredField" for="address">
+       Endere&ccedil;o
+       <span class="asteriskField">
+        *
+       </span>
+      </label>
+      <div class="col-sm-10">
+       <input class="form-control" id="address" name="address" type="text"/>
+      </div>
+     </div>
+     <div class="form-group ">
+      <label class="control-label col-sm-2 requiredField" for="date">
+       Data
+       <span class="asteriskField">
+        *
+       </span>
+      </label>
+      <div class="col-sm-10">
+       <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
+      </div>
+     </div>
+     <div class="form-group ">
+      <label class="control-label col-sm-2 requiredField" for="email">
+       Email
+       <span class="asteriskField">
+        *
+       </span>
+      </label>
+      <div class="col-sm-10">
+       <input class="form-control" id="email" name="email" type="text"/>
+      </div>
+     </div>
+     <div class="form-group">
+      <div class="col-sm-10 col-sm-offset-2">
+       <button class="btn btn-primary " name="submit" type="submit">
+        Verificar Disponibilidade
+       </button>
+      </div>
+     </div>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+<!-- Extra JavaScript/CSS added manually in "Settings" tab -->
+<!-- Include jQuery -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<!-- Include Date Range Picker -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+
+<script>
+	function isEmail(email) {
+	  var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	  return regex.test(email);
+	}
+
+	$(document).ready(function(){
+		var date_input=$('input[name="date"]'); //our date input has the name "date"
+		var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+		date_input.datepicker({
+			format: 'mm/dd/yyyy',
+			container: container,
+			todayHighlight: true,
+			autoclose: true,
+		})
+
+		var defaultBounds = new google.maps.LatLngBounds(
+			new google.maps.LatLng(-29.967808, -51.242466),
+			new google.maps.LatLng(-30.157086, -51.013126));
+
+		var options = {
+		  bounds: defaultBounds,
+		  types: ['address'],
+		  componentRestrictions: {country: 'br'}
+		};
+
+        var autocomplete = new google.maps.places.Autocomplete($("#address")[0], options);
+
+        google.maps.event.addListener(autocomplete, 'place_changed', function() {
+            var place = autocomplete.getPlace();
+            console.log(place.address_components);
+
+            place.address_components.forEach(function(item){
+            	if (item.types[0].indexOf("postal") == 0) {
+            		$("#address").val($("#address").val() + ", " + item.short_name)
+            	}
+            })
+
+        });
+
+		$('#calendar_send').submit(function(){
+			var isValid = true;
+			$("input").each(function() {
+			   var element = $(this);
+			   if (element.val() == "") {
+			       isValid = false;
+			   }
+			});
+
+			if ( isValid ) {
+				return true;
+			} else {
+				alert('Todos os campos sao obrigatorios.');
+				return false;
+			}
+			
+		});
+
+	})
+</script>
