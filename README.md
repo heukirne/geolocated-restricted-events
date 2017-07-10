@@ -5,6 +5,7 @@ Event scheduled based on geolocation restrictions
 
 - Then generate Calendar Credentials:
 ```
+composer install
 php generate_credentials.php 
 ```
 

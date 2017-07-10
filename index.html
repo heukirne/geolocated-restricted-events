@@ -216,7 +216,11 @@
 				return false;
 			}
 
-			$.getJSON( "check_avaiable.php", function( data ) {
+			$.getJSON( "check_avaiable.php", {
+          address: $('#address').val(),
+          date: $('#date').val()
+      })
+      .done( function( data ) {
 
 				console.log(data);
 
