@@ -1,6 +1,8 @@
 <?php
 require_once 'core.php';
 
+$_DEBUG = (php_sapi_name() == 'cli');
+
 // Get the API client and construct the service object.
 try {
 	$client = getClient();
@@ -48,6 +50,7 @@ if (count($results->getItems()) > 0) {
   }
 }
 
+if ($_DEBUG) print_r($locations);
 
 
 // TRAVEL TIME MINIMIZATION
@@ -72,7 +75,7 @@ foreach($locations as $keyFrom => $from){
   }
 }
 
-print_r($locationTimeMatrix);
+if ($_DEBUG) print_r($locationTimeMatrix);
 
 // 2- Shortest Path Problem: Like Travelling Salesman Problem
 // Brute Force: Optimal Solution
@@ -96,7 +99,7 @@ foreach($keys as $key){
   array_push($allRoutes, $route);
 }
 
-print_r($allRoutes);
+if ($_DEBUG) print_r($allRoutes);
 
 // 3- Compute all routes time cost
 $routeCost = [];
@@ -109,7 +112,7 @@ foreach($allRoutes as $routeKey => $route){
   }
 }
 
-print_r($routeCost);
+if ($_DEBUG) print_r($routeCost);
 
 // COMPUTE DEPENDENCY SCHEDULE COST
 
@@ -132,7 +135,7 @@ $schedule = [
             ];
 $schedule = array_diff($schedule, []); // convert to real array
 
-print_r($scheduleBooked);
+if ($_DEBUG) print_r($scheduleBooked);
 
 // Add cost per schedule location
 $scheduleCost = [];
@@ -147,23 +150,24 @@ foreach($schedule as $timeKey => $startTime){
 }
 
 asort($scheduleCost);
-print_r($scheduleCost);
+if ($_DEBUG) print_r($scheduleCost);
 
 // Build json response
 $scheduleAvaiable = [];
 $suggestTime = " (recomendado)";
+$previousCost = 24 * 60 * 60;
 foreach($scheduleCost as $eventTime => $eventCost) {
+      // Take care about suggested time
+      if ($previousCost < $eventCost) {
+        $suggestTime = "";
+      }
+
       $eventDateTime = DateTime::createFromFormat('d/m/Y  H:i', $dateString.' '.$eventTime);
       $scheduleAvaiable[] = [ 
         'key' =>  $eventDateTime->format('c'), 
         'val' =>  $eventDateTime->format('d/m/Y H:i') . $suggestTime
       ];
-      $suggestTime = "";
+      $previousCost = $eventCost;
 }
 
-
-
 echo json_encode($scheduleAvaiable);
-echo "\n\n\n";
-print_r($locations);
-echo "\n\n";
