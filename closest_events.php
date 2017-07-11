@@ -29,13 +29,12 @@ if (count($results->getItems()) == 0) {
 	    print("\nEvent Name: " . $event->getSummary() . "\n");
 	    print("End Time: " . $event->end->dateTime . "\n");
 
-  		$params = '&origins=' . urlencode($event->location);
-    	$params .= '&destinations=' . urlencode($destination);
+  		$from = $event->location;
+    	$to = $destination;
 
-	    print("\tNow we're looking up the distance between \n" .
-	    		"\t'$destination' and \n" .
-	    		"\t'" . $event->location . "\n");
-	    $element = getMatrixDistance($params);
+    	print("\tLooking up distance between: \n \t $from and \n \t $to \n");
+
+	    $element = getMatrixDistance($from,$to);
 
 	    if (isset($element) && $element->status == "OK") {
 			$distance = $element->distance;

@@ -12,7 +12,7 @@ try {
 }
 
 $address = isset($_GET['address']) ? $_GET['address'] : 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
-$dateString = isset($_GET['date']) ? $_GET['date'] : date_format(new DateTime('NOW'), 'd/m/Y');
+$dateString = isset($_GET['date']) ? $_GET['date'] :  '13/07/2017';
 
 $dateMin = DateTime::createFromFormat('d/m/Y  H:i:s', $dateString . ' 00:00:00');
 $dateMax = DateTime::createFromFormat('d/m/Y  H:i:s', $dateString . ' 23:59:59');
@@ -28,11 +28,96 @@ $optParams = array(
 );
 $results = $service->events->listEvents($calendarId, $optParams);	
 
+// Build location array
+$locations = [];
+array_push($locations, $address);
+
+// Build booked arrau
+$scheduleBooked = [];
+
+if (count($results->getItems()) > 0) {
+
+  foreach ($results->getItems() as $event) {
+    
+    if (!empty($event->location) && !empty($event->end->dateTime)) {
+      $startTimeDatetime = new DateTime($event->start->dateTime);
+      
+      array_push($scheduleBooked, $startTimeDatetime->format('H:i'));
+      array_push($locations, $event->location);
+    }
+  }
+}
+
+
+
+// TRAVEL TIME MINIMIZATION
+
+// 1- Build a Distance Matrix (but with Time value)
+$locationTimeMatrix = [[]];
+foreach($locations as $keyFrom => $from){
+  foreach($locations as $keyTo => $to){
+
+      $locationTimeMatrix[$keyFrom][$keyTo] = 24 * 60 * 60;
+      if ($keyFrom != $keyTo) {
+        // Get Time Distance from Google Matrix
+        $element = getMatrixDistance($from,$to);
+        if (isset($element) && $element->status == "OK") {
+          $locationTimeMatrix[$keyFrom][$keyTo] = $element->duration->value;
+          $locationTimeMatrix[$keyFrom][$keyTo] = $element->duration->value;
+        }
+      } else {
+        $locationTimeMatrix[$keyFrom][$keyTo] = 0;
+      }
+
+  }
+}
+
+print_r($locationTimeMatrix);
+
+// 2- Shortest Path Problem: Like Travelling Salesman Problem
+// Brute Force: Optimal Solution
+$allRoutes = [];
+$keys = array_keys($locations);
+
+foreach($keys as $key){
+
+  // first route is dummy
+  if ($key == 0) {
+    array_push($allRoutes, $keys); 
+    continue;
+  }
+
+  // following routes
+  $route = array_slice($keys, 1, $key);
+  array_push($route, 0);
+  $route_last = array_slice($keys, $key+1);
+  foreach($route_last as $newkey) { array_push($route, $newkey); }
+
+  array_push($allRoutes, $route);
+}
+
+print_r($allRoutes);
+
+// 3- Compute all routes time cost
+$routeCost = [];
+foreach($allRoutes as $routeKey => $route){
+  $routeCost[$routeKey] = 0;
+  for ($key=0; $key < count($route)-1; $key++) {
+    $fromKey = $route[$key];
+    $toKey = $route[$key+1];
+    $routeCost[$routeKey] += $locationTimeMatrix[$fromKey][$toKey];
+  }
+}
+
+print_r($routeCost);
+
+// COMPUTE DEPENDENCY SCHEDULE COST
+
 // Build day schedule
 $eventDuration = '00:44';
 $schedule = [
-              '9:00',
-              '9:45',
+              '09:00',
+              '09:45',
               '10:30',
               '11:15',
               '12:00',
@@ -45,35 +130,40 @@ $schedule = [
               '17:15',
               '18:00'
             ];
-
-
-// Remove conflicted events
 $schedule = array_diff($schedule, []); // convert to real array
-if (count($results->getItems()) > 0) {
 
-  foreach ($results->getItems() as $event) {
-    
-    if (!empty($event->location) && !empty($event->end->dateTime)) {
-      $startTimeDatetime = new DateTime($event->start->dateTime);
-      $startTime = $startTimeDatetime->format('H:i');
+print_r($scheduleBooked);
 
-      $key = array_search($startTime, $schedule);
-      unset($schedule[$key]);
-    }
+// Add cost per schedule location
+$scheduleCost = [];
+
+foreach($schedule as $timeKey => $startTime){
+  if (in_array($startTime, $scheduleBooked)){
+      array_shift($routeCost); // remove route
+  } else {
+    $values = array_values($routeCost);
+    $scheduleCost[$startTime] = array_shift($values);
   }
 }
 
+asort($scheduleCost);
+print_r($scheduleCost);
+
 // Build json response
 $scheduleAvaiable = [];
-foreach($schedule as $eventTime) {
+$suggestTime = " (recomendado)";
+foreach($scheduleCost as $eventTime => $eventCost) {
       $eventDateTime = DateTime::createFromFormat('d/m/Y  H:i', $dateString.' '.$eventTime);
       $scheduleAvaiable[] = [ 
         'key' =>  $eventDateTime->format('c'), 
-        'val' =>  $eventDateTime->format('d/m/Y H:i')
+        'val' =>  $eventDateTime->format('d/m/Y H:i') . $suggestTime
       ];
+      $suggestTime = "";
 }
 
-echo json_encode($scheduleAvaiable);
 
-// Ref: https://developers.google.com/optimization/routing/tsp/vehicle_routing_time_windows
-// Travel Time Minimization based on Google Matrix Distance
+
+echo json_encode($scheduleAvaiable);
+echo "\n\n\n";
+print_r($locations);
+echo "\n\n";

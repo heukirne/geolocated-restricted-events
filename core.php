@@ -60,9 +60,21 @@ function expandHomeDirectory($path) {
  * @param string $params with source and destination.
  * @return body object.
  */
-function getMatrixDistance($params) {
+function getMatrixDistance($from, $to) {
   //Init Guzzle
   $guzzleClient = new Client();
+
+  // Sort destinations
+  $locations = [];
+  array_push($locations, $from);
+  array_push($locations, $to);
+  sort($locations);
+  $from = $locations[0];
+  $to = $locations[1];
+
+  // Build param url
+  $params = '&origins=' . urlencode($from);
+  $params .= '&destinations=' . urlencode($to);
 
   // Get Google Api Token
   $google_key = "";
@@ -86,6 +98,7 @@ function getMatrixDistance($params) {
     $matrixCache = [];
   }
 
+  // Find cache or Request
   if (isset($matrixCache[$hash])) {
 
     $element = $matrixCache[$hash];
@@ -94,12 +107,13 @@ function getMatrixDistance($params) {
   } else {
 
     $response = $guzzleClient->request('GET', $gmatrix . $params);
+    //echo "Log: Matrix Distance Request! \n";
     $body = json_decode($response->getBody());
 
     $matrixCache[$hash] = $body->rows[0]->elements[0];
     file_put_contents('matrix_distance.json', json_encode($matrixCache));
 
-    return $body->rows[0]->elements[0];
+    return $matrixCache[$hash];
   }
 
 }
