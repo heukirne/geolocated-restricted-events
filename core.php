@@ -10,7 +10,7 @@ define('MATRIX_CACHE', __DIR__ . '/matrix_distance.json');
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/calendar-php-quickstart.json
 define('SCOPES', implode(' ', array(
-  Google_Service_Calendar::CALENDAR_READONLY)
+  Google_Service_Calendar::CALENDAR)
 ));
 
 /**
@@ -39,6 +39,16 @@ function getClient() {
     $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
     file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
   }
+
+  // Get Google Api Token
+  $clientSecretPath = expandHomeDirectory(CLIENT_SECRET_PATH);
+  if (file_exists($clientSecretPath)) {
+    $clientJson = json_decode(file_get_contents($clientSecretPath), true);
+    define('CALENDAR_ID', $clientJson['calendarId']);
+  } else {
+    die("{ success:0, msg: 'Define calendarId!' }");
+  }
+
   return $client;
 }
 

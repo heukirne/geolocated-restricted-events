@@ -34,7 +34,7 @@ $dateMin = DateTime::createFromFormat('Y-m-d  H:i:s', $dateString . ' 00:00:00')
 $dateMax = DateTime::createFromFormat('Y-m-d  H:i:s', $dateString . ' 23:59:59');
 
 // Print the next 10 events on the user's calendar.
-$calendarId = 'primary';
+$calendarId = CALENDAR_ID;
 $optParams = array(
   'maxResults' => 20,
   'orderBy' => 'startTime',
