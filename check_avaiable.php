@@ -2,6 +2,7 @@
 require_once 'core.php';
 
 $_DEBUG = (php_sapi_name() == 'cli');
+$start = microtime(true);
 
 // Get the API client and construct the service object.
 try {
@@ -13,11 +14,24 @@ try {
 	exit();
 }
 
-$address = isset($_GET['address']) ? $_GET['address'] : 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
-$dateString = isset($_GET['date']) ? $_GET['date'] :  '13/07/2017';
+$address = '';
+$dateString = '';
 
-$dateMin = DateTime::createFromFormat('d/m/Y  H:i:s', $dateString . ' 00:00:00');
-$dateMax = DateTime::createFromFormat('d/m/Y  H:i:s', $dateString . ' 23:59:59');
+if ($_DEBUG) {
+  $address = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
+  $dateString = '13/07/2017';
+} else {
+  $address = isset($_GET['address']) ? $_GET['address'] : '';
+  $dateString = isset($_GET['date']) ? $_GET['date'] :  '';
+}
+
+if (empty($address) || empty($dateString)) {
+  echo json_encode([[ 'key' => 'erro', 'val' => 'Erro ao acessar calendario! :(' ]]);
+  exit();
+}
+
+$dateMin = DateTime::createFromFormat('Y-m-d  H:i:s', $dateString . ' 00:00:00');
+$dateMax = DateTime::createFromFormat('Y-m-d  H:i:s', $dateString . ' 23:59:59');
 
 // Print the next 10 events on the user's calendar.
 $calendarId = 'primary';
@@ -34,7 +48,7 @@ $results = $service->events->listEvents($calendarId, $optParams);
 $locations = [];
 array_push($locations, $address);
 
-// Build booked arrau
+// Build booked array
 $scheduleBooked = [];
 
 if (count($results->getItems()) > 0) {
@@ -50,8 +64,9 @@ if (count($results->getItems()) > 0) {
   }
 }
 
-if ($_DEBUG) print_r($locations);
-
+$executionTime = microtime(true) - $start;
+if ($_DEBUG) { echo "$executionTime ms (events and locations) \n"; print_r($locations); }
+$start = microtime(true);
 
 // TRAVEL TIME MINIMIZATION
 
@@ -75,7 +90,9 @@ foreach($locations as $keyFrom => $from){
   }
 }
 
-if ($_DEBUG) print_r($locationTimeMatrix);
+$executionTime = microtime(true) - $start;
+if ($_DEBUG) { echo "$executionTime ms (matrix) \n"; print_r($locationTimeMatrix); }
+$start = microtime(true);
 
 // 2- Shortest Path Problem: Like Travelling Salesman Problem
 // Brute Force: Optimal Solution
@@ -99,7 +116,9 @@ foreach($keys as $key){
   array_push($allRoutes, $route);
 }
 
-if ($_DEBUG) print_r($allRoutes);
+$executionTime = microtime(true) - $start;
+if ($_DEBUG) { echo "$executionTime ms (all routes) \n"; print_r($allRoutes); }
+$start = microtime(true);
 
 // 3- Compute all routes time cost
 $routeCost = [];
@@ -112,7 +131,9 @@ foreach($allRoutes as $routeKey => $route){
   }
 }
 
-if ($_DEBUG) print_r($routeCost);
+$executionTime = microtime(true) - $start;
+if ($_DEBUG) { echo "$executionTime ms (route cost) \n"; print_r($routeCost); }
+$start = microtime(true);
 
 // COMPUTE DEPENDENCY SCHEDULE COST
 
@@ -135,7 +156,9 @@ $schedule = [
             ];
 $schedule = array_diff($schedule, []); // convert to real array
 
-if ($_DEBUG) print_r($scheduleBooked);
+$executionTime = microtime(true) - $start;
+if ($_DEBUG) { echo "$executionTime ms (base schedule) \n"; print_r($scheduleBooked); }
+$start = microtime(true);
 
 // Add cost per schedule location
 $scheduleCost = [];
@@ -150,7 +173,10 @@ foreach($schedule as $timeKey => $startTime){
 }
 
 asort($scheduleCost);
-if ($_DEBUG) print_r($scheduleCost);
+
+$executionTime = (microtime(true) - $start);
+if ($_DEBUG) { echo "$executionTime ms (schedule cost) \n";  print_r($scheduleCost); }
+$start = microtime(true);
 
 // Build json response
 $scheduleAvaiable = [];
@@ -162,7 +188,7 @@ foreach($scheduleCost as $eventTime => $eventCost) {
         $suggestTime = "";
       }
 
-      $eventDateTime = DateTime::createFromFormat('d/m/Y  H:i', $dateString.' '.$eventTime);
+      $eventDateTime = DateTime::createFromFormat('Y-m-d  H:i', $dateString.' '.$eventTime);
       $scheduleAvaiable[] = [ 
         'key' =>  $eventDateTime->format('c'), 
         'val' =>  $eventDateTime->format('d/m/Y H:i') . $suggestTime
@@ -170,4 +196,6 @@ foreach($scheduleCost as $eventTime => $eventCost) {
       $previousCost = $eventCost;
 }
 
+$executionTime = microtime(true) - $start;
+if ($_DEBUG) { echo "$executionTime ms (schedule avaiable) \n"; }
 echo json_encode($scheduleAvaiable);

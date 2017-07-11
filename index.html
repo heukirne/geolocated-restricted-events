@@ -1,38 +1,46 @@
-<!-- Special version of Bootstrap that only affects content wrapped in .bootstrap-iso -->
-<link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" /> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Agendamento de Fotos</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!-- Include Google Maps Api -->
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+  <!-- Include Project Libs -->
+  <script type="text/javascript" src="index.js"></script>
+  <link rel="stylesheet" href="index.css"/>
+</head>
+<body>
 
-<!-- HTML Form (wrapped in a .bootstrap-iso div) -->
-<div class="bootstrap-iso" style="margin-right: auto; margin-left: auto;">
- <div class="container-fluid">
-  <div class="row">
-   <div class="col-md-6 col-sm-6 col-xs-12">
-
-   	<h2>Agendamento de Fotos</h2> </br>
-
-    <form class="form-horizontal" id="calendar_send" method="post">
-
-     <div class="form-group col-sm-10">
-      <label class="control-label requiredField" for="address">
+<div class="container">
+  <h2>Agendamento de Fotos</h2>
+  <form id="calendar_send" method="post">
+    <div class="form-group">
+      <label for="address">
        Endere&ccedil;o <span class="asteriskField">*</span>
       </label>
-       <input class="form-control" id="address" name="address" type="text"/>
-     </div>
+       <input class="form-control" id="address" name="address" placeholder="Procure um endere&ccedil;o" type="text"/>
+    </div>
 
-     <div class="form-group col-sm-10">
-      <label class="control-label requiredField" for="date">
+    <div class="form-group">
+      <label for="date">
        Data <span class="asteriskField">*</span>
       </label>
-       <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
-     </div>
+       <input class="form-control" id="date" name="date" placeholder="dd/mm/yyyy" type="date"/>
+    </div>
 
-     <div class="form-group col-sm-10">
-       <button class="btn btn-primary " name="submit" type="button" id="checkAvaiable">
+    <div class="form-group">
+       <button class="btn btn-primary" name="submit" type="button" id="checkAvaiable">
         Verificar Disponibilidade
        </button>
-     </div>
+       <div id="loader"></div>
+    </div>
 
-     <div class="form-group col-sm-10">
-      <label class="control-label" for="horario">
+    <div class="form-group">
+      <label for="horario">
        Selecione um hor&aacute;rio <span class="asteriskField">*</span>
       </label>
        <select class="select form-control" id="horario" name="horario">
@@ -40,34 +48,61 @@
          Verifique a disponibilidade
         </option>
        </select>
-     </div>
+    </div>
 
-     <div class="form-group col-sm-10">
-      <label class="control-label requiredField" for="predio">
+    <div class="form-group">
+      <label for="predio">
        Nome do Pr&eacute;dio <span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="predio" name="predio" type="text"/>
-     </div>
+    </div>
 
-     <div class="form-group col-sm-10">
-      <label class="control-label requiredField" for="proprietario">
-       Propriet&aacute;rio <span class="asteriskField">*</span>
+    <div class="form-group">
+      <label for="proprietario_nome">
+       Nome do Propriet&aacute;rio <span class="asteriskField">*</span>
       </label>
-       <input class="form-control" id="proprietario" name="proprietario" type="text"/>
-     </div>
+       <input class="form-control" id="proprietario_nome" name="proprietario_nome" type="text"/>
+    </div>
 
-     <div class="form-group col-sm-10">
-      <label class="control-label requiredField" for="corretor">
-       Corretor <span class="asteriskField">*</span>
+    <div class="form-group">
+      <label for="proprietario_tel">
+       Telefone do Propriet&aacute;rio <span class="asteriskField">*</span>
       </label>
-       <input class="form-control" id="corretor" name="corretor" type="text"/>
-     </div>
+       <input class="form-control" id="proprietario_tel" name="proprietario_tel" type="tel" placeholder="(##) 9.####.####"/>
+    </div>
 
-	<div class="form-group col-sm-10">
-      <label class="control-label" for="metragem">
+    <div class="form-group">
+      <label for="imobiliaria">
+       Selecione a imobiliária <span class="asteriskField">*</span>
+      </label>
+       <select class="select form-control" id="imobiliaria" name="imobiliaria">
+        <option value="-"> Selecione a imobiliária </option>
+        <option value="Não se aplica"> Não se aplica </option>
+        <option value="Auxiliadora"> Auxiliadora </option>
+        <option value="Credito Real"> Credito Real </option>
+        <option value="Guarida"> Guarida </option>
+       </select>
+    </div>
+
+    <div class="form-group">
+      <label for="corretor_nome">
+       Nome do Corretor <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="corretor_nome" name="corretor_nome" type="text"/>
+    </div>
+
+    <div class="form-group">
+      <label for="corretor_tel">
+       Telefone do Corretor <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="corretor_tel" name="corretor_tel" type="tel" placeholder="(##) 9.####.####"/>
+    </div>
+
+    <div class="form-group">
+      <label for="metragem">
        Selecione a metragem <span class="asteriskField">*</span>
       </label>
-      <div class="col-sm-10">
+      <div>
        <div class="radio-inline">
         <label class="radio">
          <input name="metragem" type="radio" value="300"/>
@@ -87,13 +122,13 @@
         </label>
        </div>
       </div>
-     </div>
+    </div>
 
-	<div class="form-group col-sm-10">
+    <div class="form-group">
       <label class="control-label" for="infra">
        Selecione quantos ambiente tem na infraestrutura <span class="asteriskField">*</span>
       </label>
-      <div class="col-sm-10">
+      <div>
        <div class="radio-inline">
         <label class="radio">
          <input name="infra" type="radio" value="0"/>
@@ -119,118 +154,18 @@
         </label>
        </div>
       </div>
-     </div>
+    </div>
 
-     <div class="form-group col-sm-10">
-      <label class="control-label requiredField" for="email">
+    <div class="form-group">
+      <label for="email">
        Email <span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="email" name="email" type="text"/>
-     </div>
+    </div>
 
-     <div class="form-group col-sm-10">
-       <button class="btn btn-primary " name="submit" type="submit">
-        Enviar Agendamento
-       </button>
-     </div>
-
-    </form>
-   </div>
-  </div>
- </div>
+    <button type="submit" name="submit" class="btn btn-primary">Enviar Agendamento</button>
+  </form>
 </div>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
-<!-- Extra JavaScript/CSS added manually in "Settings" tab -->
-<!-- Include jQuery -->
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-
-<!-- Include Date Range Picker -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
-
-<script>
-	function isEmail(email) {
-	  var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-	  return regex.test(email);
-	}
-
-	$(document).ready(function(){
-		var date_input=$('input[name="date"]'); //our date input has the name "date"
-		var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
-		date_input.datepicker({
-			format: 'dd/mm/yyyy',
-			container: container,
-			todayHighlight: true,
-			autoclose: true,
-		})
-
-		var defaultBounds = new google.maps.LatLngBounds(
-			new google.maps.LatLng(-29.967808, -51.242466),
-			new google.maps.LatLng(-30.157086, -51.013126));
-
-		var options = {
-		  bounds: defaultBounds,
-		  types: ['address'],
-		  componentRestrictions: {country: 'br'}
-		};
-
-        var autocomplete = new google.maps.places.Autocomplete($("#address")[0], options);
-
-        google.maps.event.addListener(autocomplete, 'place_changed', function() {
-            var place = autocomplete.getPlace();
-            console.log(place.address_components);
-
-            place.address_components.forEach(function(item){
-            	if (item.types[0].indexOf("postal") == 0) {
-            		$("#address").val($("#address").val() + ", " + item.short_name)
-            	}
-            })
-
-        });
-
-		$('#calendar_send').submit(function(){
-			var isValid = true;
-
-			if ($('[name=infra]:checked').length == 0) { isValid = false; }
-			if ($('[name=metragem]:checked').length == 0) { isValid = false; }
-
-			$("input").each(function() {
-			   var element = $(this);
-			   if (element.val() == "") {
-			       isValid = false;
-			   }
-			});
-
-			if ( isValid ) {
-				return true;
-			} else {
-				alert('Todos os campos sao obrigatorios.');
-				return false;
-			}
-		});
-
-		$('#checkAvaiable').click(function(){
-			if ($('#address').val() == "" && $('#date').val() == "" ) {
-				alert('Preencha o endereco e a data!');
-				return false;
-			}
-
-			$.getJSON( "check_avaiable.php", {
-          address: $('#address').val(),
-          date: $('#date').val()
-      })
-      .done( function( data ) {
-
-				console.log(data);
-
-			    $('#horario').empty();
-			    $.each(data, function(i, obj){
-			            $('#horario').append($('<option>').text(obj.val).attr('value', obj.key));
-			    });
-			});
-
-		});
-
-	})
-</script>
+</body>
+</html>
