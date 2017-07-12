@@ -42,10 +42,13 @@ $(document).ready(function() {
 		if ($('[name=metragem]:checked').length == 0) {
 			isValid = false;
 		}
+		if ($('[name=cliente]:checked').length == 0) {
+			isValid = false;
+		}
 
 		$("input").each(function() {
 			var element = $(this);
-			if (element.val() == "") {
+			if (element.val() == "" && $(this).prop('disabled') == false)  {
 				isValid = false;
 			}
 		});
@@ -98,6 +101,16 @@ $(document).ready(function() {
 				$("#loader").hide();
 			});
 
+	});
+
+	$('input[name="cliente"]:radio').change(function() {
+		if ($('input[name="cliente"]:checked').val() == "Proprietario") {
+			$(".corretor-div").hide();
+			$(".corretor-fields").prop('disabled', true);
+		} else {
+			$(".corretor-div").show();
+			$(".corretor-fields").prop('disabled', false);
+		}
 	});
 
 })

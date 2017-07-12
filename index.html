@@ -17,6 +17,7 @@
 <body>
 
 <div class="container">
+  <img src="logo.png">
   <h2>Agendamento de Fotos</h2>
   <form id="calendar_send" method="post" action="send_event.php">
     <div class="form-group">
@@ -24,6 +25,21 @@
        Endere&ccedil;o <span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="address" name="address" placeholder="Procure um endere&ccedil;o" type="text"/>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="apto">
+         N&uacute;mero do Apto <span class="asteriskField">*</span>
+        </label>
+       <input class="form-control" id="apto" name="apto" type="number"/>
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="torre">
+         Torre <span class="asteriskField">*</span>
+        </label>
+       <input class="form-control" id="torre" name="torre" type="text"/>
+      </div>
     </div>
 
     <div class="form-group">
@@ -52,6 +68,26 @@
     </div>
 
     <div class="form-group">
+      <label class="control-label" for="cliente">
+       Selecione quantos ambientes tem na infraestrutura <span class="asteriskField">*</span>
+      </label>
+      <div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="cliente" type="radio" value="Proprietario"/>
+         Propriet&aacute;rio
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="cliente" type="radio" value="Corretor"/>
+         Corretor
+        </label>
+       </div>
+      </div>
+    </div>
+
+    <div class="form-group">
       <label for="predio">
        Nome do Pr&eacute;dio <span class="asteriskField">*</span>
       </label>
@@ -60,43 +96,41 @@
 
     <div class="form-group">
       <label for="proprietario_nome">
-       Nome do Propriet&aacute;rio <span class="asteriskField">*</span>
+       Nome do Propriet&aacute;rio e/ou Respons&aacute;vel<span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="proprietario_nome" name="proprietario_nome" type="text"/>
     </div>
 
     <div class="form-group">
       <label for="proprietario_tel">
-       Telefone do Propriet&aacute;rio <span class="asteriskField">*</span>
+       Telefone do Propriet&aacute;rio e/ou Respons&aacute;vel<span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="proprietario_tel" name="proprietario_tel" type="tel" placeholder="(##) 9.####.####"/>
     </div>
 
-    <div class="form-group">
-      <label for="imobiliaria">
-       Selecione a imobiliária <span class="asteriskField">*</span>
-      </label>
-       <select class="select form-control" id="imobiliaria" name="imobiliaria">
-        <option value="-"> Selecione a imobiliária </option>
-        <option value="Não se aplica"> Não se aplica </option>
-        <option value="Auxiliadora"> Auxiliadora </option>
-        <option value="Credito Real"> Credito Real </option>
-        <option value="Guarida"> Guarida </option>
-       </select>
-    </div>
+    <div id="corretor-div">
 
-    <div class="form-group">
-      <label for="corretor_nome">
-       Nome do Corretor <span class="asteriskField">*</span>
-      </label>
-       <input class="form-control" id="corretor_nome" name="corretor_nome" type="text"/>
-    </div>
+      <div class="form-group">
+        <label for="imobiliaria">
+         Imobiliária <span class="asteriskField">*</span>
+        </label>
+        <input class="form-control corretor-fields" id="imobiliaria" name="imobiliaria" type="text"/>
+      </div>
 
-    <div class="form-group">
-      <label for="corretor_tel">
-       Telefone do Corretor <span class="asteriskField">*</span>
-      </label>
-       <input class="form-control" id="corretor_tel" name="corretor_tel" type="tel" placeholder="(##) 9.####.####"/>
+      <div class="form-group">
+        <label for="corretor_nome">
+         Nome do Corretor <span class="asteriskField">*</span>
+        </label>
+         <input class="form-control corretor-fields" id="corretor_nome" name="corretor_nome" type="text"/>
+      </div>
+
+      <div class="form-group">
+        <label for="corretor_tel">
+         Telefone do Corretor <span class="asteriskField">*</span>
+        </label>
+         <input class="form-control corretor-fields" id="corretor_tel" name="corretor_tel" type="tel" placeholder="(##) 9.####.####"/>
+      </div>
+
     </div>
 
     <div class="form-group">
@@ -118,7 +152,7 @@
        </div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="metragem" type="radio" value="1000"/>
+         <input name="metragem" type="radio" value="mais que 500"/>
          maior que 500m&sup2;
         </label>
        </div>
@@ -127,19 +161,13 @@
 
     <div class="form-group">
       <label class="control-label" for="infra">
-       Selecione quantos ambiente tem na infraestrutura <span class="asteriskField">*</span>
+       Selecione quantos ambientes tem na infraestrutura <span class="asteriskField">*</span>
       </label>
       <div>
        <div class="radio-inline">
         <label class="radio">
          <input name="infra" type="radio" value="0"/>
-         sem infra
-        </label>
-       </div>
-       <div class="radio-inline">
-        <label class="radio">
-         <input name="infra" type="radio" value="3"/>
-         at&eacute; 3
+         sem infraestrutura
         </label>
        </div>
        <div class="radio-inline">
@@ -151,7 +179,13 @@
        <div class="radio-inline">
         <label class="radio">
          <input name="infra" type="radio" value="10"/>
-         mais que 5
+         at&eacute; 10
+        </label>
+       </div>
+       <div class="radio-inline">
+        <label class="radio">
+         <input name="infra" type="radio" value="mais que 10"/>
+         mais que 10
         </label>
        </div>
       </div>

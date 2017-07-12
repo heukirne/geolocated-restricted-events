@@ -10,17 +10,59 @@
 		$msg = 'Erro ao acessar calendario! :(';
 	}
 
-	if (empty($msg) &&  !empty($_POST)) {
+
+	if (!empty($_POST)) {
+
+		$dateNow = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 23:59:59');
+
+		$dateStart = new DateTime($_POST['horario']);
+
+		if ( $dateStart < $dateNow ) {
+			$msg = "Horário ultrapassado, tente outro horário!";
+		} else {
+
+			$dateEnd = new DateTime($_POST['horario']);
+			$dateEnd->add(new DateInterval('PT44M'));
+
+			// Load the next 20 events on the user's calendar.
+			$calendarId = CALENDAR_ID;
+			$optParams = array(
+			  'maxResults' => 1,
+			  'orderBy' => 'startTime',
+			  'singleEvents' => TRUE,
+			  'timeMin' => $dateStart->format('c'),
+			  'timeMax' => $dateEnd->format('c'),
+			);
+			$results = $service->events->listEvents($calendarId, $optParams);
+
+			if (count($results) > 0) {
+				$msg = "Horário indisponível, tente outro horário!";
+			}
+
+		}
+
+	} else {
+		$msg = 'Dados de agendamento faltantes! :(';
+	}
+
+
+
+	if (empty($msg)) {
 
 		$dateStart = new DateTime($_POST['horario']);
 
 		$dateEnd = new DateTime($_POST['horario']);
 		$dateEnd->add(new DateInterval('PT44M'));
 
+		$description = "";
+		foreach($_POST as $field => $value) {
+			$description .= ucfirst($field) . ": $value \n";
+		}
+
 		$event = new Google_Service_Calendar_Event([
 		  'summary' => $_POST['predio'],
 		  'location' => $_POST['address'],
-		  'description' => $_POST['proprietario_nome'] . "\n" . $_POST['proprietario_tel'],
+		  'description' => $description,
 		  'start' => [
 		    'dateTime' => $dateStart->format('c'),
 		    'timeZone' => 'America/Sao_Paulo',
@@ -46,8 +88,6 @@
 		//echo "-->";
 
 		$msg = "Solicitação de agendamento enviada com sucesso!";
-	} else {
-		$msg = 'Dados de agendamento faltantes! :(';
 	}
 ?>
 <!DOCTYPE html>

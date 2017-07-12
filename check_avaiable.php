@@ -30,10 +30,25 @@ if (empty($address) || empty($dateString)) {
   exit();
 }
 
-$dateMin = DateTime::createFromFormat('Y-m-d  H:i:s', $dateString . ' 00:00:00');
-$dateMax = DateTime::createFromFormat('Y-m-d  H:i:s', $dateString . ' 23:59:59');
+$dateMin = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 00:00:00');
+$dateMax = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 23:59:59');
 
-// Print the next 10 events on the user's calendar.
+$dateNow = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 23:59:59');
+
+$scheduleAvaiable = [];
+
+// Check if needs Delorean ;)
+if ( $dateMin < $dateNow ) {
+  $scheduleAvaiable[] = [ 
+    'key' =>  date('c'), 
+    'val' =>  'Data ultrapassado, tente outra data!'
+  ];
+  echo json_encode($scheduleAvaiable);
+  exit();
+}
+
+
+// Load the next 20 events on the user's calendar.
 $calendarId = CALENDAR_ID;
 $optParams = array(
   'maxResults' => 20,
@@ -64,9 +79,37 @@ if (count($results->getItems()) > 0) {
   }
 }
 
+// Build day schedule
+$schedule = [
+              '09:00',
+              '09:45',
+              '10:30',
+              '11:15',
+              '12:00',
+              '12:45',
+              '13:30',
+              '14:15',
+              '15:00',
+              '15:45',
+              '16:30',
+              '17:15',
+              '18:00'
+            ];
+$schedule = array_diff($schedule, []); // convert to real array
+
 $executionTime = microtime(true) - $start;
 if ($_DEBUG) { echo "$executionTime ms (events and locations) \n"; print_r($locations); }
 $start = microtime(true);
+
+// Check if it's overbooked
+if (count($scheduleBooked) == count($schedule)) {
+  $scheduleAvaiable[] = [ 
+    'key' =>  date('c'), 
+    'val' =>  'Nenhum horario disponivel para esta data.'
+  ];
+  echo json_encode($scheduleAvaiable);
+  exit();
+}
 
 // TRAVEL TIME MINIMIZATION
 
@@ -137,29 +180,6 @@ $start = microtime(true);
 
 // COMPUTE DEPENDENCY SCHEDULE COST
 
-// Build day schedule
-$eventDuration = '00:44';
-$schedule = [
-              '09:00',
-              '09:45',
-              '10:30',
-              '11:15',
-              '12:00',
-              '12:45',
-              '13:30',
-              '14:15',
-              '15:00',
-              '15:45',
-              '16:30',
-              '17:15',
-              '18:00'
-            ];
-$schedule = array_diff($schedule, []); // convert to real array
-
-$executionTime = microtime(true) - $start;
-if ($_DEBUG) { echo "$executionTime ms (base schedule) \n"; print_r($scheduleBooked); }
-$start = microtime(true);
-
 // Add cost per schedule location
 $scheduleCost = [];
 
@@ -179,7 +199,6 @@ if ($_DEBUG) { echo "$executionTime ms (schedule cost) \n";  print_r($scheduleCo
 $start = microtime(true);
 
 // Build json response
-$scheduleAvaiable = [];
 $suggestTime = " (recomendado)";
 $previousCost = 24 * 60 * 60;
 foreach($scheduleCost as $eventTime => $eventCost) {
@@ -188,12 +207,19 @@ foreach($scheduleCost as $eventTime => $eventCost) {
         $suggestTime = "";
       }
 
-      $eventDateTime = DateTime::createFromFormat('Y-m-d  H:i', $dateString.' '.$eventTime, new DateTimeZone('America/Sao_Paulo'));
+      $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, new DateTimeZone('America/Sao_Paulo'));
       $scheduleAvaiable[] = [ 
         'key' =>  $eventDateTime->format('c'), 
         'val' =>  $eventDateTime->format('d/m/Y H:i') . $suggestTime
       ];
       $previousCost = $eventCost;
+}
+
+if (count($scheduleAvaiable) == 0) {
+  $scheduleAvaiable[] = [ 
+    'key' =>  date('c'), 
+    'val' =>  'Nenhum horario disponivel para esta data.'
+  ];
 }
 
 $executionTime = microtime(true) - $start;
