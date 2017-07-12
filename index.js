@@ -105,10 +105,10 @@ $(document).ready(function() {
 
 	$('input[name="cliente"]:radio').change(function() {
 		if ($('input[name="cliente"]:checked').val() == "Proprietario") {
-			$(".corretor-div").hide();
+			$("#corretor-div").hide();
 			$(".corretor-fields").prop('disabled', true);
 		} else {
-			$(".corretor-div").show();
+			$("#corretor-div").show();
 			$(".corretor-fields").prop('disabled', false);
 		}
 	});
