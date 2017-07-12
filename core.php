@@ -45,6 +45,7 @@ function getClient() {
   if (file_exists($clientSecretPath)) {
     $clientJson = json_decode(file_get_contents($clientSecretPath), true);
     define('CALENDAR_ID', $clientJson['calendarId']);
+    define('CALENDAR_EMAIL', $clientJson['email']);
   } else {
     die("{ success:0, msg: 'Define calendarId!' }");
   }

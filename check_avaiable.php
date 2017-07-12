@@ -19,7 +19,7 @@ $dateString = '';
 
 if ($_DEBUG) {
   $address = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
-  $dateString = '13/07/2017';
+  $dateString = '2017-07-13';
 } else {
   $address = isset($_GET['address']) ? $_GET['address'] : '';
   $dateString = isset($_GET['date']) ? $_GET['date'] :  '';
@@ -188,7 +188,7 @@ foreach($scheduleCost as $eventTime => $eventCost) {
         $suggestTime = "";
       }
 
-      $eventDateTime = DateTime::createFromFormat('Y-m-d  H:i', $dateString.' '.$eventTime);
+      $eventDateTime = DateTime::createFromFormat('Y-m-d  H:i', $dateString.' '.$eventTime, new DateTimeZone('America/Sao_Paulo'));
       $scheduleAvaiable[] = [ 
         'key' =>  $eventDateTime->format('c'), 
         'val' =>  $eventDateTime->format('d/m/Y H:i') . $suggestTime

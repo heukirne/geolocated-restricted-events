@@ -10,12 +10,41 @@
 		$msg = 'Erro ao acessar calendario! :(';
 	}
 
-	if (empty($msg)) {
-		$createdEvent = $service->events->quickAdd(
-	    CALENDAR_ID,
-	    'Appointment at Somewhere on July 11th 10pm-10:25pm');
+	if (empty($msg) &&  !empty($_POST)) {
+
+		$dateStart = new DateTime($_POST['horario']);
+
+		$dateEnd = new DateTime($_POST['horario']);
+		$dateEnd->add(new DateInterval('PT44M'));
+
+		$event = new Google_Service_Calendar_Event([
+		  'summary' => $_POST['predio'],
+		  'location' => $_POST['address'],
+		  'description' => $_POST['proprietario_nome'] . "\n" . $_POST['proprietario_tel'],
+		  'start' => [
+		    'dateTime' => $dateStart->format('c'),
+		    'timeZone' => 'America/Sao_Paulo',
+		  ],
+		  'end' => [
+		    'dateTime' => $dateEnd->format('c'),
+		    'timeZone' => 'America/Sao_Paulo',
+		  ],
+		  'attendees' => [
+		    ['email' => CALENDAR_EMAIL],
+		    ['email' => $_POST['email']],
+		  ],
+		]);
+
+		$calendarId = CALENDAR_ID;
+		$calendarEvent = $service->events->insert($calendarId, $event);
+
+		//echo "<!--";
+		//print_r($calendarEvent);
+		//echo "-->";
 
 		$msg = "Solicitação de agendamento enviada com sucesso!";
+	} else {
+		$msg = 'Dados de agendamento faltantes! :(';
 	}
 ?>
 <!DOCTYPE html>
