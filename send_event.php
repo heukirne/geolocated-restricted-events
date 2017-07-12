@@ -33,10 +33,13 @@
 		    ['email' => CALENDAR_EMAIL],
 		    ['email' => $_POST['email']],
 		  ],
+		  'sendNotifications' => true,
 		]);
 
+        $optParams = [ 'sendNotifications' => true ];
+
 		$calendarId = CALENDAR_ID;
-		$calendarEvent = $service->events->insert($calendarId, $event);
+		$calendarEvent = $service->events->insert($calendarId, $event, $optParams);
 
 		//echo "<!--";
 		//print_r($calendarEvent);
