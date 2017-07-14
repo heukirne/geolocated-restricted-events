@@ -9,7 +9,7 @@ $client = getClient();
 $service = new Google_Service_Calendar($client);
 
 // Print the next 10 events on the user's calendar.
-$calendarId = CALENDAR_ID;
+$calendarId = $clientJson['calendarId'][0];
 $optParams = array(
   'maxResults' => 20,
   'orderBy' => 'startTime',

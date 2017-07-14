@@ -16,13 +16,19 @@ try {
 
 $address = '';
 $dateString = '';
+$idx = '';
+$calendarId = '';
 
 if ($_DEBUG) {
   $address = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
   $dateString = '2017-07-13';
+  $idx = 0;
+  $calendarId = $clientJson['calendarId'][$idx];
 } else {
   $address = isset($_GET['address']) ? $_GET['address'] : '';
   $dateString = isset($_GET['date']) ? $_GET['date'] :  '';
+  $idx = isset($_GET['idx']) ? $_GET['idx'] :  '';
+  $calendarId = $clientJson['calendarId'][$idx];
 }
 
 if (empty($address) || empty($dateString)) {
@@ -47,9 +53,7 @@ if ( $dateMin < $dateNow ) {
   exit();
 }
 
-
 // Load the next 20 events on the user's calendar.
-$calendarId = CALENDAR_ID;
 $optParams = array(
   'maxResults' => 20,
   'orderBy' => 'startTime',

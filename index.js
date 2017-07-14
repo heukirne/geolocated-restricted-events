@@ -81,7 +81,8 @@ $(document).ready(function() {
 		$("#loader").show();
 		$.getJSON("check_avaiable.php", {
 				address: $('#address').val(),
-				date: $('#date').val()
+				date: $('#date').val(),
+				idx: $('#idx').val()
 			})
 			.done(function(data) {
 

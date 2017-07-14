@@ -13,6 +13,9 @@
 
 	if (!empty($_POST)) {
 
+		$idx = $_POST['idx'];
+		$calendarId = $clientJson['calendarId'][$idx];
+
 		$dateNow = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 23:59:59');
 
 		$dateStart = new DateTime($_POST['horario']);
@@ -25,7 +28,6 @@
 			$dateEnd->add(new DateInterval('PT44M'));
 
 			// Load the next 20 events on the user's calendar.
-			$calendarId = CALENDAR_ID;
 			$optParams = array(
 			  'maxResults' => 1,
 			  'orderBy' => 'startTime',
@@ -37,6 +39,46 @@
 
 			if (count($results) > 0) {
 				$msg = "Horário indisponível, tente outro horário!";
+			} else {
+
+				// Send event to Calendar
+
+				$dateStart = new DateTime($_POST['horario']);
+
+				$dateEnd = new DateTime($_POST['horario']);
+				$dateEnd->add(new DateInterval('PT44M'));
+
+				$description = "";
+				foreach($_POST as $field => $value) {
+					$description .= ucfirst($field) . ": $value \n";
+				}
+
+				$event = new Google_Service_Calendar_Event([
+				  'summary' => $_POST['predio'],
+				  'location' => $_POST['address'],
+				  'description' => $description,
+				  'start' => [
+				    'dateTime' => $dateStart->format('c'),
+				    'timeZone' => 'America/Sao_Paulo',
+				  ],
+				  'end' => [
+				    'dateTime' => $dateEnd->format('c'),
+				    'timeZone' => 'America/Sao_Paulo',
+				  ],
+				  'attendees' => [
+				    ['email' => $clientJson['emailAdmin']],
+				    ['email' => $clientJson['emailPhotographer'][$idx]],
+				    ['email' => $_POST['email']],
+				  ],
+				  'sendNotifications' => true,
+				]);
+
+		        $optParams = [ 'sendNotifications' => true ];
+
+				$calendarEvent = $service->events->insert($calendarId, $event, $optParams);
+
+				$msg = "Solicitação de agendamento enviada com sucesso! Aguarde confirmação.";
+
 			}
 
 		}
@@ -45,50 +87,6 @@
 		$msg = 'Dados de agendamento faltantes! :(';
 	}
 
-
-
-	if (empty($msg)) {
-
-		$dateStart = new DateTime($_POST['horario']);
-
-		$dateEnd = new DateTime($_POST['horario']);
-		$dateEnd->add(new DateInterval('PT44M'));
-
-		$description = "";
-		foreach($_POST as $field => $value) {
-			$description .= ucfirst($field) . ": $value \n";
-		}
-
-		$event = new Google_Service_Calendar_Event([
-		  'summary' => $_POST['predio'],
-		  'location' => $_POST['address'],
-		  'description' => $description,
-		  'start' => [
-		    'dateTime' => $dateStart->format('c'),
-		    'timeZone' => 'America/Sao_Paulo',
-		  ],
-		  'end' => [
-		    'dateTime' => $dateEnd->format('c'),
-		    'timeZone' => 'America/Sao_Paulo',
-		  ],
-		  'attendees' => [
-		    ['email' => CALENDAR_EMAIL],
-		    ['email' => $_POST['email']],
-		  ],
-		  'sendNotifications' => true,
-		]);
-
-        $optParams = [ 'sendNotifications' => true ];
-
-		$calendarId = CALENDAR_ID;
-		$calendarEvent = $service->events->insert($calendarId, $event, $optParams);
-
-		//echo "<!--";
-		//print_r($calendarEvent);
-		//echo "-->";
-
-		$msg = "Solicitação de agendamento enviada com sucesso!";
-	}
 ?>
 <!DOCTYPE html>
 <html lang="en">

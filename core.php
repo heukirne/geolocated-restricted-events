@@ -13,6 +13,15 @@ define('SCOPES', implode(' ', array(
   Google_Service_Calendar::CALENDAR)
 ));
 
+// Get Google Api Token
+$clientSecretPath = expandHomeDirectory(CLIENT_SECRET_PATH);
+$clientJson = [];
+if (file_exists($clientSecretPath)) {
+  $clientJson = json_decode(file_get_contents($clientSecretPath), true);
+} else {
+  die("{ success:0, msg: 'Create cclient_secret.json!' }");
+}
+
 /**
  * Returns an authorized API client.
  * @return Google_Client the authorized client object
@@ -38,16 +47,6 @@ function getClient() {
   if ($client->isAccessTokenExpired()) {
     $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
     file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
-  }
-
-  // Get Google Api Token
-  $clientSecretPath = expandHomeDirectory(CLIENT_SECRET_PATH);
-  if (file_exists($clientSecretPath)) {
-    $clientJson = json_decode(file_get_contents($clientSecretPath), true);
-    define('CALENDAR_ID', $clientJson['calendarId']);
-    define('CALENDAR_EMAIL', $clientJson['email']);
-  } else {
-    die("{ success:0, msg: 'Define calendarId!' }");
   }
 
   return $client;
