@@ -21,7 +21,7 @@ $calendarId = '';
 
 if ($_DEBUG) {
   $address = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
-  $dateString = '2017-07-13';
+  $dateString = '2017-07-18';
   $idx = 0;
   $calendarId = $clientJson['calendarId'][$idx];
 } else {
@@ -36,8 +36,13 @@ if (empty($address) || empty($dateString)) {
   exit();
 }
 
-$dateMin = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 00:00:00');
-$dateMax = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 23:59:59');
+try {
+  $dateMin = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 00:00:00');
+  $dateMax = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 23:59:59');
+} catch (Exception $e) {
+  echo json_encode([[ 'key' => 'erro', 'val' => 'Data invalida! :(' ]]);
+  exit();
+}
 
 $dateNow = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 23:59:59');
 
@@ -83,27 +88,35 @@ if (count($results->getItems()) > 0) {
   }
 }
 
+$timeStartLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['start']);
+$timeEndLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['end']);
+
+$timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start']);
+$timeEndJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['end']);
+
+$dateInterval = new DateInterval($clientJson['timeInterval']);
+
 // Build day schedule
-$schedule = [
-              '09:00',
-              '09:45',
-              '10:30',
-              '11:15',
-              '12:00',
-              '12:45',
-              '13:30',
-              '14:15',
-              '15:00',
-              '15:45',
-              '16:30',
-              '17:15',
-              '18:00'
-            ];
+$schedule = [];
+
+for ($date = $timeStartJob; 
+      $date <= $timeEndJob; 
+      $date->add($dateInterval)) {
+
+    if ($date < $timeStartLunch || $date > $timeEndLunch)
+    $schedule[] = $date->format('H:i');
+}
+
 $schedule = array_diff($schedule, []); // convert to real array
+
+if ($_DEBUG) { print_r($schedule); }
+exit();
+
 
 $executionTime = microtime(true) - $start;
 if ($_DEBUG) { echo "$executionTime ms (events and locations) \n"; print_r($locations); }
 $start = microtime(true);
+
 
 // Check if it's overbooked
 if (count($scheduleBooked) == count($schedule)) {
