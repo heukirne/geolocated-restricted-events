@@ -133,63 +133,6 @@ function getMatrixDistance($from, $to) {
 
 }
 
-function belongsToInterval($date, $start, $end) {
-  return (($date >= $start) && ($date <= $end));
-}
-
-/**
- * Build basic schedule based on config file
- * @param string $dateString date.
- * @return schedule time list.
- */
-function basicSchedule($dateString, $events, $timeCost) {
-  global $clientJson, $timeZone;
-
-  $timeStartLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['start'], $timeZone);
-  $timeEndLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['end'], $timeZone);
-
-  $timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start'], $timeZone);
-  $timeEndJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['end'], $timeZone);
-
-  $dateInterval = new DateInterval($clientJson['timeInterval']);
-
-  $schedule = [];
-
-  for ($date = $timeStartJob; 
-        $date <= $timeEndJob; 
-        $date->add($dateInterval)) {
-
-      $dateEnd = clone $date;
-      $dateEnd->add($timeCost);
-
-      $lunchStartOverlap = belongsToInterval($date, $timeStartLunch, $timeEndLunch);
-      $lunchEndOverlap = belongsToInterval($dateEnd, $timeStartLunch, $timeEndLunch);
-      $lunchOverlap = $lunchStartOverlap || $lunchEndOverlap;
-
-      $eventOverlap = false;
-
-      foreach ($events as $event) {
-        if (!empty($event->location) && !empty($event->end->dateTime)) {
-          $startTimeDatetime = new DateTime($event->start->dateTime);
-          $endTimeDatetime = new DateTime($event->end->dateTime);
-          
-          $startBelongs = belongsToInterval($date, $startTimeDatetime, $endTimeDatetime);
-          $endBelongs = belongsToInterval($dateEnd, $startTimeDatetime, $endTimeDatetime);
-
-          if ($startBelongs || $endBelongs) {
-            $eventOverlap = true;
-          }
-        }
-      }
-
-      if (!$lunchOverlap && !$eventOverlap) {
-        $schedule[] = $date->format('H:i');
-      }
-  }
-
-  return $schedule;
-}
-
 /**
  * 1- Build a Distance Matrix (but with Time value)
  * @param array $locations address.
@@ -272,26 +215,71 @@ function cheapestPath($scheduleBooked, $locations, $locationTimeMatrix) {
   return $routeCostMinute;
 }
 
-/**
- * Add cost per schedule time
- * @param array $schedule address, 
- * @param array $routeCost route time-cost distance
- * @return array $scheduleCost schedule order by cheapest routes.
- */
-function buildScheduleCost($schedule, $routeCost) {
-  $scheduleCost = [];
+function belongsToInterval($date, $start, $end) {
+  return (($date >= $start) && ($date <= $end));
+}
 
-  foreach($schedule as $timeKey => $startTime){
-    @$nextBook = array_keys($routeCost)[1]; // care about next book
-    if ($startTime > $nextBook && count($routeCost) > 1){
-        array_shift($routeCost); // remove route
-    }
-    $values = array_values($routeCost)[0];
-    $scheduleCost[$startTime] = $values;
+/**
+ * Build basic schedule based on config file
+ * @param string $dateString date.
+ * @return schedule time list.
+ */
+function basicSchedule($dateString, $events, $routeCost, $workTime) {
+  global $clientJson, $timeZone;
+
+  $timeStartLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['start'], $timeZone);
+  $timeEndLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['end'], $timeZone);
+
+  $timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start'], $timeZone);
+  $timeEndJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['end'], $timeZone);
+
+  $dateInterval = new DateInterval($clientJson['timeInterval']);
+
+  $schedule = [];
+
+  for ($date = $timeStartJob; 
+        $date <= $timeEndJob; 
+        $date->add($dateInterval)) {
+
+      $startTime = $date->format('H:i');
+      @$nextBook = array_keys($routeCost)[1]; // care about next book
+      if ($startTime > $nextBook && count($routeCost) > 1){
+          array_shift($routeCost); // remove route
+      }
+      $travelCost = array_values($routeCost)[0];
+
+      $totalTimeCost = ceil($workTime + $travelCost);
+      $timeCost = new DateInterval('PT'.($totalTimeCost).'M');
+
+      $dateEnd = clone $date;
+      $dateEnd->add($timeCost);
+
+      $lunchStartOverlap = belongsToInterval($date, $timeStartLunch, $timeEndLunch);
+      $lunchEndOverlap = belongsToInterval($dateEnd, $timeStartLunch, $timeEndLunch);
+      $lunchOverlap = $lunchStartOverlap || $lunchEndOverlap;
+
+      $endJobOverlap = $dateEnd > $timeEndJob;
+
+      $eventOverlap = false;
+
+      foreach ($events as $event) {
+        if (!empty($event->location) && !empty($event->end->dateTime)) {
+          $startTimeDatetime = new DateTime($event->start->dateTime);
+          $endTimeDatetime = new DateTime($event->end->dateTime);
+          
+          $startBelongs = belongsToInterval($date, $startTimeDatetime, $endTimeDatetime);
+          $endBelongs = belongsToInterval($dateEnd, $startTimeDatetime, $endTimeDatetime);
+
+          if ($startBelongs || $endBelongs) {
+            $eventOverlap = true;
+          }
+        }
+      }
+
+      if (!$lunchOverlap && !$eventOverlap && !$endJobOverlap) {
+        $schedule[$startTime] = $totalTimeCost;
+      }
   }
 
-  // Sort cheapest routes
-  // asort($scheduleCost);
-
-  return $scheduleCost;
+  return $schedule;
 }

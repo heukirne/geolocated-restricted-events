@@ -95,32 +95,23 @@ if (count($results->getItems()) > 0) {
 }
 
 // Compute location size and infrastructure
-$timeSpend = $clientJson['minMinutesDistance'];
+$workTime = 0;
 if ($metragem <= 300) {
-  $timeSpend += 30;
+  $workTime += 30;
 } else {
-  $timeSpend += ($metragem / 10);
+  $workTime += ($metragem / 10);
 }
 
 switch($infra) {
   case '10':
-    $timeSpend += 10; break;
+    $workTime += 10; break;
   case '20':
-    $timeSpend += 20; break;
+    $workTime += 20; break;
   case '60':
-    $timeSpend += 60; break;
+    $workTime += 60; break;
   default:
-    $timeSpend += 0; break;
+    $workTime += 0; break;
 }
-
-$timeCost = new DateInterval('PT'.($timeSpend).'M');
-
-if ($_DEBUG) { echo "(Time Cost) \n"; print_r($timeCost); }
-
-// Build basic schedule
-$schedule = basicSchedule($dateString, $results->getItems(), $timeCost);
-
-if ($_DEBUG) { print_r($schedule); }
 
 $executionTime = microtime(true) - $start;
 if ($_DEBUG) { echo "$executionTime ms (events and locations) \n"; print_r($locations); }
@@ -143,9 +134,10 @@ $executionTime = microtime(true) - $start;
 if ($_DEBUG) { echo "$executionTime ms (route cost) \n"; print_r($routeCost); }
 $start = microtime(true);
 
+
 // COMPUTE DEPENDENCY SCHEDULE COST
 // Add cost per schedule location
-$scheduleCost = buildScheduleCost($schedule, $routeCost);
+$scheduleCost = basicSchedule($dateString, $results->getItems(), $routeCost, $workTime);
 
 $executionTime = (microtime(true) - $start);
 if ($_DEBUG) { echo "$executionTime ms (schedule cost) \n";  print_r($scheduleCost); }
@@ -166,12 +158,13 @@ foreach($scheduleCost as $eventTime => $eventCost) {
       } else {
         $scheduleMsg = "";
       }
-      if ($eventCost < $clientJson['maxMinutesDistance']) {
+
+      if (($eventCost - $workTime) < $clientJson['maxMinutesDistance']) {
         $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, $timeZone);
         $scheduleAvaiable[] = [ 
           'key' =>  $eventDateTime->format('c'), 
           'val' =>  $eventDateTime->format('d/m/Y H:i') . $scheduleMsg,
-          'cost' => $eventCost,
+          'cost' => ((ceil($eventCost/15)*15) -1),
         ];
       }
 
