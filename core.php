@@ -3,6 +3,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
+$_DEBUG = (php_sapi_name() == 'cli');
+$start = microtime(true);
+
 define('APPLICATION_NAME', 'Geolocated Restricted Events');
 define('CREDENTIALS_PATH', __DIR__ . '/user_credentials.json');
 define('CLIENT_SECRET_PATH', __DIR__ . '/client_secret.json');
@@ -126,4 +129,128 @@ function getMatrixDistance($from, $to) {
     return $matrixCache[$hash];
   }
 
+}
+
+/**
+ * Build basic schedule based on config file
+ * @param string $dateString date.
+ * @return schedule time list.
+ */
+function basicSchedule($dateString) {
+  global $clientJson;
+
+  $timeStartLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['start']);
+  $timeEndLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['end']);
+
+  $timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start']);
+  $timeEndJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['end']);
+
+  $dateInterval = new DateInterval($clientJson['timeInterval']);
+
+  $schedule = [];
+
+  for ($date = $timeStartJob; 
+        $date <= $timeEndJob; 
+        $date->add($dateInterval)) {
+
+      if ($date < $timeStartLunch || $date > $timeEndLunch)
+      $schedule[] = $date->format('H:i');
+  }
+  return $schedule;
+}
+
+/**
+ * 1- Build a Distance Matrix (but with Time value)
+ * @param array $locations address.
+ * @return matrix $locationTimeMatrix time-cost distance
+ */
+function buildTimeMatrix($locations) {
+  $locationTimeMatrix = [[]];
+  foreach($locations as $keyFrom => $from){
+    foreach($locations as $keyTo => $to){
+
+        $locationTimeMatrix[$keyFrom][$keyTo] = 24 * 60 * 60;
+        if ($keyFrom != $keyTo) {
+          // Get Time Distance from Google Matrix
+          $element = getMatrixDistance($from,$to);
+          if (isset($element) && $element->status == "OK") {
+            $locationTimeMatrix[$keyFrom][$keyTo] = $element->duration->value;
+            $locationTimeMatrix[$keyFrom][$keyTo] = $element->duration->value;
+          }
+        } else {
+          $locationTimeMatrix[$keyFrom][$keyTo] = 0;
+        }
+
+    }
+  }
+  return $locationTimeMatrix;
+}
+
+/**
+ * 2- Shortest Path Problem: Like Travelling Salesman Problem
+ *    Brute Force: Optimal Solution
+ * @param array $locations address, 
+ * @param matrix $locationTimeMatrix with time distance.
+ * @return array $routeCost route time-cost distance.
+ */
+function cheapestPath($locations, $locationTimeMatrix) {
+  global $_DEBUG;
+
+  $allRoutes = [];
+  $keys = array_keys($locations);
+
+  foreach($keys as $key){
+    // first route is dummy
+    if ($key == 0) {
+      array_push($allRoutes, $keys); 
+      continue;
+    }
+
+    // following routes
+    $route = array_slice($keys, 1, $key);
+    array_push($route, 0);
+    $route_last = array_slice($keys, $key+1);
+    foreach($route_last as $newkey) { array_push($route, $newkey); }
+
+    array_push($allRoutes, $route);
+  }
+
+  if ($_DEBUG) { echo "(all routes) \n"; print_r($allRoutes); }
+
+  // 3- Compute all routes time cost
+  $routeCost = [];
+  foreach($allRoutes as $routeKey => $route){
+    $routeCost[$routeKey] = 0;
+    for ($key=0; $key < count($route)-1; $key++) {
+      $fromKey = $route[$key];
+      $toKey = $route[$key+1];
+      $routeCost[$routeKey] += $locationTimeMatrix[$fromKey][$toKey];
+    }
+  }
+  return $routeCost;
+}
+
+/**
+ * Add cost per schedule time
+ * @param array $schedule address, 
+ * @param matrix $locationTimeMatrix with time distance.
+ * @param array $routeCost route time-cost distance
+ * @return array $scheduleCost schedule order by cheapest routes.
+ */
+function buildScheduleCost($schedule, $scheduleBooked, $routeCost) {
+  $scheduleCost = [];
+
+  foreach($schedule as $timeKey => $startTime){
+    if (in_array($startTime, $scheduleBooked)){
+        array_shift($routeCost); // remove route
+    } else {
+      $values = array_values($routeCost);
+      $scheduleCost[$startTime] = array_shift($values);
+    }
+  }
+
+  // Sort cheapest routes
+  asort($scheduleCost);
+
+  return $scheduleCost;
 }
