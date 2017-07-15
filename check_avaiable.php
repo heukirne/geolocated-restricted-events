@@ -95,7 +95,7 @@ if (count($results->getItems()) > 0) {
 }
 
 // Compute location size and infrastructure
-$timeSpend = 15;
+$timeSpend = $clientJson['minMinutesDistance'];
 if ($metragem <= 300) {
   $timeSpend += 30;
 } else {
@@ -166,16 +166,14 @@ foreach($scheduleCost as $eventTime => $eventCost) {
       } else {
         $scheduleMsg = "";
       }
-      if ($eventCost > $clientJson['maxMinutesDistance']) {
-        $scheduleMsg = " (indisponivel)"; // TODO: NEVER REACH 
+      if ($eventCost < $clientJson['maxMinutesDistance']) {
+        $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, $timeZone);
+        $scheduleAvaiable[] = [ 
+          'key' =>  $eventDateTime->format('c'), 
+          'val' =>  $eventDateTime->format('d/m/Y H:i') . $scheduleMsg,
+          'cost' => $eventCost,
+        ];
       }
-
-      $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, $timeZone);
-      $scheduleAvaiable[] = [ 
-        'key' =>  $eventDateTime->format('c'), 
-        'val' =>  $eventDateTime->format('d/m/Y H:i') . $scheduleMsg,
-        'cost' => $eventCost,
-      ];
 
 }
 
