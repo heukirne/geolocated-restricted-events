@@ -71,6 +71,9 @@ array_push($locations, $address);
 
 // Build booked array
 $scheduleBooked = [];
+$timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start'], $timeZone);
+$timeStartJob->sub(new DateInterval('PT1M'));
+array_push($scheduleBooked, $timeStartJob->format('H:i'));
 
 if (count($results->getItems()) > 0) {
 
@@ -86,24 +89,16 @@ if (count($results->getItems()) > 0) {
 }
 
 // Build basic schedule
-$schedule = basicSchedule($dateString);
+
+$timeCost = new DateInterval('PT'.(55).'M');
+
+$schedule = basicSchedule($dateString, $results->getItems(), $timeCost);
 
 if ($_DEBUG) { print_r($schedule); }
 
 $executionTime = microtime(true) - $start;
 if ($_DEBUG) { echo "$executionTime ms (events and locations) \n"; print_r($locations); }
 $start = microtime(true);
-
-
-// Check if it's overbooked
-if (count($scheduleBooked) == count($schedule)) {
-  $scheduleAvaiable[] = [ 
-    'key' =>  date('c'), 
-    'val' =>  'Nenhum horario disponivel para esta data.'
-  ];
-  echo json_encode($scheduleAvaiable);
-  exit();
-}
 
 // TRAVEL TIME MINIMIZATION
 
@@ -116,7 +111,7 @@ $start = microtime(true);
 
 // 2- Shortest Path Problem: Like Travelling Salesman Problem
 // Brute Force: Optimal Solution
-$routeCost = cheapestPath($locations, $locationTimeMatrix);
+$routeCost = cheapestPath($scheduleBooked, $locations, $locationTimeMatrix);
 
 $executionTime = microtime(true) - $start;
 if ($_DEBUG) { echo "$executionTime ms (route cost) \n"; print_r($routeCost); }
@@ -124,27 +119,38 @@ $start = microtime(true);
 
 // COMPUTE DEPENDENCY SCHEDULE COST
 // Add cost per schedule location
-$scheduleCost = buildScheduleCost($schedule, $scheduleBooked, $routeCost);
+$scheduleCost = buildScheduleCost($schedule, $routeCost);
 
 $executionTime = (microtime(true) - $start);
 if ($_DEBUG) { echo "$executionTime ms (schedule cost) \n";  print_r($scheduleCost); }
 $start = microtime(true);
 
 // Build json response
-$suggestTime = " (recomendado)";
-$previousCost = 24 * 60 * 60;
+$scheduleMsg = " (recomendado)";
+
+// Get minimum route cost
+$leastCost = array_values($scheduleCost);
+rsort($leastCost);
+$leastCost = array_pop($leastCost);
+
 foreach($scheduleCost as $eventTime => $eventCost) {
       // Take care about suggested time
-      if ($previousCost < $eventCost) {
-        $suggestTime = "";
+      if ($eventCost == $leastCost) {
+        $scheduleMsg = " (recomendado)";
+      } else {
+        $scheduleMsg = "";
+      }
+      if ($eventCost > $clientJson['maxMinutesDistance']) {
+        $scheduleMsg = " (indisponivel)"; // TODO: NEVER REACH 
       }
 
-      $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, new DateTimeZone('America/Sao_Paulo'));
+      $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, $timeZone);
       $scheduleAvaiable[] = [ 
         'key' =>  $eventDateTime->format('c'), 
-        'val' =>  $eventDateTime->format('d/m/Y H:i') . $suggestTime
+        'val' =>  $eventDateTime->format('d/m/Y H:i') . $scheduleMsg,
+        'cost' => $eventCost,
       ];
-      $previousCost = $eventCost;
+
 }
 
 if (count($scheduleAvaiable) == 0) {
@@ -155,5 +161,5 @@ if (count($scheduleAvaiable) == 0) {
 }
 
 $executionTime = microtime(true) - $start;
-if ($_DEBUG) { echo "$executionTime ms (schedule avaiable) \n"; }
-echo json_encode($scheduleAvaiable);
+if ($_DEBUG) { echo "$executionTime ms (schedule avaiable) \n"; print_r($scheduleAvaiable); }
+else { echo json_encode($scheduleAvaiable); }

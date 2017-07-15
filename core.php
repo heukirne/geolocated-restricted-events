@@ -25,6 +25,8 @@ if (file_exists($clientSecretPath)) {
   die("{ success:0, msg: 'Create cclient_secret.json!' }");
 }
 
+$timeZone = new DateTimeZone('America/Sao_Paulo');
+
 /**
  * Returns an authorized API client.
  * @return Google_Client the authorized client object
@@ -131,19 +133,23 @@ function getMatrixDistance($from, $to) {
 
 }
 
+function belongsToInterval($date, $start, $end) {
+  return (($date >= $start) && ($date <= $end));
+}
+
 /**
  * Build basic schedule based on config file
  * @param string $dateString date.
  * @return schedule time list.
  */
-function basicSchedule($dateString) {
-  global $clientJson;
+function basicSchedule($dateString, $events, $timeCost) {
+  global $clientJson, $timeZone;
 
-  $timeStartLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['start']);
-  $timeEndLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['end']);
+  $timeStartLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['start'], $timeZone);
+  $timeEndLunch = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['lunchTime']['end'], $timeZone);
 
-  $timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start']);
-  $timeEndJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['end']);
+  $timeStartJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['start'], $timeZone);
+  $timeEndJob = DateTime::createFromFormat('Y-m-d H:i', $dateString .' '. $clientJson['avaiableTime']['end'], $timeZone);
 
   $dateInterval = new DateInterval($clientJson['timeInterval']);
 
@@ -153,9 +159,34 @@ function basicSchedule($dateString) {
         $date <= $timeEndJob; 
         $date->add($dateInterval)) {
 
-      if ($date < $timeStartLunch || $date > $timeEndLunch)
-      $schedule[] = $date->format('H:i');
+      $dateEnd = clone $date;
+      $dateEnd->add($timeCost);
+
+      $lunchStartOverlap = belongsToInterval($date, $timeStartLunch, $timeEndLunch);
+      $lunchEndOverlap = belongsToInterval($dateEnd, $timeStartLunch, $timeEndLunch);
+      $lunchOverlap = $lunchStartOverlap || $lunchEndOverlap;
+
+      $eventOverlap = false;
+
+      foreach ($events as $event) {
+        if (!empty($event->location) && !empty($event->end->dateTime)) {
+          $startTimeDatetime = new DateTime($event->start->dateTime);
+          $endTimeDatetime = new DateTime($event->end->dateTime);
+          
+          $startBelongs = belongsToInterval($date, $startTimeDatetime, $endTimeDatetime);
+          $endBelongs = belongsToInterval($dateEnd, $startTimeDatetime, $endTimeDatetime);
+
+          if ($startBelongs || $endBelongs) {
+            $eventOverlap = true;
+          }
+        }
+      }
+
+      if (!$lunchOverlap && !$eventOverlap) {
+        $schedule[] = $date->format('H:i');
+      }
   }
+
   return $schedule;
 }
 
@@ -174,8 +205,8 @@ function buildTimeMatrix($locations) {
           // Get Time Distance from Google Matrix
           $element = getMatrixDistance($from,$to);
           if (isset($element) && $element->status == "OK") {
-            $locationTimeMatrix[$keyFrom][$keyTo] = $element->duration->value;
-            $locationTimeMatrix[$keyFrom][$keyTo] = $element->duration->value;
+            $locationTimeMatrix[$keyFrom][$keyTo] = round($element->duration->value / 60,2);
+            $locationTimeMatrix[$keyFrom][$keyTo] = round($element->duration->value / 60,2);
           }
         } else {
           $locationTimeMatrix[$keyFrom][$keyTo] = 0;
@@ -193,8 +224,8 @@ function buildTimeMatrix($locations) {
  * @param matrix $locationTimeMatrix with time distance.
  * @return array $routeCost route time-cost distance.
  */
-function cheapestPath($locations, $locationTimeMatrix) {
-  global $_DEBUG;
+function cheapestPath($scheduleBooked, $locations, $locationTimeMatrix) {
+  global $_DEBUG, $clientJson;
 
   $allRoutes = [];
   $keys = array_keys($locations);
@@ -220,37 +251,43 @@ function cheapestPath($locations, $locationTimeMatrix) {
   // 3- Compute all routes time cost
   $routeCost = [];
   foreach($allRoutes as $routeKey => $route){
-    $routeCost[$routeKey] = 0;
+    $timeKey = $scheduleBooked[$routeKey];
+    $routeCost[$timeKey] = 0;
     for ($key=0; $key < count($route)-1; $key++) {
       $fromKey = $route[$key];
       $toKey = $route[$key+1];
-      $routeCost[$routeKey] += $locationTimeMatrix[$fromKey][$toKey];
+      $routeCost[$timeKey] += $locationTimeMatrix[$fromKey][$toKey];
     }
   }
-  return $routeCost;
+
+  $routeCostMinute = array_map(function($value) use ($locations, $clientJson){
+    $basicRouteCost = (count($locations) - 1) * $clientJson['minMinutesDistance'];
+    return $value - $basicRouteCost;
+  }, $routeCost);
+
+  return $routeCostMinute;
 }
 
 /**
  * Add cost per schedule time
  * @param array $schedule address, 
- * @param matrix $locationTimeMatrix with time distance.
  * @param array $routeCost route time-cost distance
  * @return array $scheduleCost schedule order by cheapest routes.
  */
-function buildScheduleCost($schedule, $scheduleBooked, $routeCost) {
+function buildScheduleCost($schedule, $routeCost) {
   $scheduleCost = [];
 
   foreach($schedule as $timeKey => $startTime){
-    if (in_array($startTime, $scheduleBooked)){
+    @$nextBook = array_keys($routeCost)[1]; // care about next book
+    if ($startTime > $nextBook && count($routeCost) > 1){
         array_shift($routeCost); // remove route
-    } else {
-      $values = array_values($routeCost);
-      $scheduleCost[$startTime] = array_shift($values);
     }
+    $values = array_values($routeCost)[0];
+    $scheduleCost[$startTime] = $values;
   }
 
   // Sort cheapest routes
-  asort($scheduleCost);
+  // asort($scheduleCost);
 
   return $scheduleCost;
 }

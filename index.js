@@ -45,6 +45,9 @@ $(document).ready(function() {
 		if ($('[name=cliente]:checked').length == 0) {
 			isValid = false;
 		}
+		if ($('[name=horario] option:selected').val().length == 0) {
+			isValid = false;
+		}
 
 		$("input").each(function() {
 			var element = $(this);
@@ -89,14 +92,19 @@ $(document).ready(function() {
 				console.log(data);
 
 				$('#horario').empty();
+				$('#horario').append($('<option>').text("Selecione um horario").attr('value', ''));
 				$.each(data, function(i, obj) {
-					$('#horario').append($('<option>').text(obj.val).attr('value', obj.key));
+					$('#horario').append(
+							$('<option>').text(obj.val)
+								.attr('value', obj.key)
+								.attr('cost', obj.cost)
+					);
 				});
 
 			})
 			.fail(function() {
 				$('#horario').empty();
-				$('#horario').append($('<option>').text("Erro ao verificar agenda.").attr('value', '-'));
+				$('#horario').append($('<option>').text("Erro ao verificar agenda.").attr('value', ''));
 			})
 			.always(function() {
 				$("#loader").hide();
