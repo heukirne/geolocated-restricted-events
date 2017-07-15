@@ -15,23 +15,29 @@ $address = '';
 $dateString = '';
 $idx = '';
 $calendarId = '';
+$metragem = '';
+$infra = '';
 
 if ($_DEBUG) {
   $address = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
   $dateString = '2017-07-18';
   $idx = 0;
-  $calendarId = $clientJson['calendarId'][$idx];
+  $metragem = 400;
+  $infra = 10;
 } else {
   $address = isset($_GET['address']) ? $_GET['address'] : '';
   $dateString = isset($_GET['date']) ? $_GET['date'] :  '';
-  $idx = isset($_GET['idx']) ? $_GET['idx'] :  '';
-  $calendarId = $clientJson['calendarId'][$idx];
+  $idx = isset($_GET['idx']) ? $_GET['idx'] : 0;
+  $metragem = isset($_GET['metragem']) ? $_GET['metragem'] : 0;
+  $infra = isset($_GET['infra']) ? $_GET['infra'] : 0;
 }
 
 if (empty($address) || empty($dateString)) {
-  echo json_encode([[ 'key' => 'erro', 'val' => 'Erro ao acessar calendario! :(' ]]);
+  echo json_encode([[ 'key' => 'erro', 'val' => 'Dados faltantes! :(' ]]);
   exit();
 }
+
+$calendarId = $clientJson['calendarId'][$idx];
 
 try {
   $dateMin = DateTime::createFromFormat('Y-m-d H:i:s', $dateString . ' 00:00:00');
@@ -88,10 +94,30 @@ if (count($results->getItems()) > 0) {
   }
 }
 
+// Compute location size and infrastructure
+$timeSpend = 15;
+if ($metragem <= 300) {
+  $timeSpend += 30;
+} else {
+  $timeSpend += ($metragem / 10);
+}
+
+switch($infra) {
+  case '10':
+    $timeSpend += 10; break;
+  case '20':
+    $timeSpend += 20; break;
+  case '60':
+    $timeSpend += 60; break;
+  default:
+    $timeSpend += 0; break;
+}
+
+$timeCost = new DateInterval('PT'.($timeSpend).'M');
+
+if ($_DEBUG) { echo "(Time Cost) \n"; print_r($timeCost); }
+
 // Build basic schedule
-
-$timeCost = new DateInterval('PT'.(55).'M');
-
 $schedule = basicSchedule($dateString, $results->getItems(), $timeCost);
 
 if ($_DEBUG) { print_r($schedule); }

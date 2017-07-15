@@ -36,10 +36,10 @@ $(document).ready(function() {
 	$('#calendar_send').submit(function() {
 		var isValid = true;
 
-		if ($('[name=infra]:checked').length == 0) {
+		if ($('[name=infra] option:selected').val().length == 0) {
 			isValid = false;
 		}
-		if ($('[name=metragem]:checked').length == 0) {
+		if ($('[name=metragem] option:selected').val().length == 0) {
 			isValid = false;
 		}
 		if ($('[name=cliente]:checked').length == 0) {
@@ -56,36 +56,55 @@ $(document).ready(function() {
 			}
 		});
 
-		if (isValid) {
-			return true;
-		} else {
+		if (!isValid) {
 			alert('Todos os campos sao obrigatorios.');
 			return false;
+		} else {
+			return true;
 		}
 	});
 
 	$('#checkAvaiable').click(function() {
 		var validPlace = false;
+		var isValid = true;
 		var place = autocomplete.getPlace();
 
 		if (place) {
 			place.address_components.forEach(function(item) {
-				if (item.short_name.indexOf("RS") == 0) {
+				if (item.short_name.indexOf("Porto Alegre") == 0) {
 					validPlace = true;
 				}
 			});
 		}
 
-		if ($('#address').val() == "" || $('#date').val() == "" || !validPlace) {
-			alert('Preencha um endereco valido e uma data!');
+		if (!validPlace) {
+			alert('Preencha um endereco em Porto Alegre.');
+			return false;
+		}
+
+		if ($('[name=infra] option:selected').val().length == 0) {
+			isValid = false;
+		}
+		if ($('[name=metragem] option:selected').val().length == 0) {
+			isValid = false;
+		}
+
+		if ($('#address').val() == "" || $('#date').val() == "" ) {
+			isValid = false;
+		}
+
+		if (!isValid) {
+			alert('Preencha o campos: endereco, data, metragem e infraestrutura.');
 			return false;
 		}
 
 		$("#loader").show();
 		$.getJSON("check_avaiable.php", {
+				idx: $('#idx').val(),
 				address: $('#address').val(),
 				date: $('#date').val(),
-				idx: $('#idx').val()
+				metragem: $('[name=metragem]:checked').val(),
+				infra: $('[name=infra]:checked').val(),
 			})
 			.done(function(data) {
 

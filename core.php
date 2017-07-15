@@ -260,8 +260,12 @@ function cheapestPath($scheduleBooked, $locations, $locationTimeMatrix) {
     }
   }
 
-  $routeCostMinute = array_map(function($value) use ($locations, $clientJson){
-    $basicRouteCost = (count($locations) - 1) * $clientJson['minMinutesDistance'];
+  $basicRouteCost = 0;
+  if (count($locationTimeMatrix)>1) {
+    $basicRouteCost = $routeCost[$scheduleBooked[0]] - $locationTimeMatrix[0][1];
+  }
+
+  $routeCostMinute = array_map(function($value) use ($basicRouteCost){
     return $value - $basicRouteCost;
   }, $routeCost);
 
