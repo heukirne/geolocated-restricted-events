@@ -73,7 +73,7 @@
 				  'sendNotifications' => true,
 				]);
 
-		        $optParams = [ 'sendNotifications' => true ];
+		        $optParams = [ 'sendNotifications' => false ];
 
 				$calendarEvent = $service->events->insert($calendarId, $event, $optParams);
 
