@@ -25,7 +25,7 @@
 		} else {
 
 			$dateEnd = new DateTime($_POST['horario']);
-			$dateEnd->add(new DateInterval('PT44M'));
+			$dateEnd->add(new DateInterval('PT'.$_POST['tempo'].'M'));
 
 			// Load the next 20 events on the user's calendar.
 			$optParams = array(
@@ -46,7 +46,7 @@
 				$dateStart = new DateTime($_POST['horario']);
 
 				$dateEnd = new DateTime($_POST['horario']);
-				$dateEnd->add(new DateInterval('PT44M'));
+				$dateEnd->add(new DateInterval('PT'.$_POST['tempo'].'M'));
 
 				$description = "";
 				foreach($_POST as $field => $value) {

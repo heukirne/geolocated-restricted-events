@@ -141,4 +141,9 @@ $(document).ready(function() {
 		}
 	});
 
+	$('#horario').change(function() {
+		$cost = $('[name=horario] option:selected').attr('cost');
+		$('#tempo').val($cost);
+	});
+
 })
