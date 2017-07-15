@@ -53,6 +53,7 @@
 					$description .= ucfirst($field) . ": $value \n";
 				}
 
+				// Create Vent with Notification
 				$event = new Google_Service_Calendar_Event([
 				  'summary' => $_POST['predio'],
 				  'location' => $_POST['address'],
@@ -67,15 +68,25 @@
 				  ],
 				  'attendees' => [
 				    ['email' => $clientJson['emailAdmin']],
+				  ],
+				]);
+
+		        $optParams = [ 'sendNotifications' => true ];
+				$calendarEvent = $service->events->insert($calendarId, $event, $optParams);
+
+
+				// Add more attendees without notification
+
+				$eventUpdate = new Google_Service_Calendar_Event([
+				  'attendees' => [
+				  	['email' => $clientJson['emailAdmin']],
 				    ['email' => $clientJson['emailPhotographer'][$idx]],
 				    ['email' => $_POST['email']],
 				  ],
-				  'sendNotifications' => true,
 				]);
 
-		        $optParams = [ 'sendNotifications' => false ];
-
-				$calendarEvent = $service->events->insert($calendarId, $event, $optParams);
+				$optParams = [ 'sendNotifications' => false ];
+				$service->events->patch($calendarId, $calendarEvent->id, $eventUpdate);
 
 				$msg = "Solicitação de agendamento enviada com sucesso! Aguarde confirmação.";
 
