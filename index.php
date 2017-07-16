@@ -2,8 +2,8 @@
 require_once 'core.php';
 
 $idx = isset($_GET['idx']) ? 1 : 0;
-$title = $clientJson['calendarName'][$idx]
-$apiKey = $clientJson['api']
+$title = $clientJson['calendarName'][$idx];
+$apiKey = $clientJson['api'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
