@@ -8,7 +8,7 @@ $apiKey = $clientJson['api'];
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Agendamento de Fotos</title>
+  <title><?=$title?></title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -32,6 +32,35 @@ $apiKey = $clientJson['api'];
        Endere&ccedil;o <span class="asteriskField">*</span>
       </label>
        <input class="form-control" id="address" name="address" placeholder="Procure um endere&ccedil;o" type="text"/>
+    </div>
+
+    <div class="form-group">
+      <label for="predio">
+       Nome do Pr&eacute;dio <span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="predio" name="predio" type="text"/>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="apto">
+         N&uacute;mero do Apto <span class="asteriskField">*</span>
+        </label>
+       <input class="form-control" id="apto" name="apto" type="number"/>
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="torre">
+         Torre <span class="asteriskField">*</span>
+        </label>
+       <input class="form-control" id="torre" name="torre" type="text"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="proprietario_nome">
+       Nome do Propriet&aacute;rio e/ou Respons&aacute;vel<span class="asteriskField">*</span>
+      </label>
+       <input class="form-control" id="proprietario_nome" name="proprietario_nome" type="text"/>
     </div>
 
     <div class="form-group">
@@ -100,46 +129,17 @@ $apiKey = $clientJson['api'];
       <div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="cliente" type="radio" value="Proprietario"/>
-         Propriet&aacute;rio
+         <input name="cliente" type="radio" value="Corretor" checked="true"/>
+         Corretor
         </label>
        </div>
        <div class="radio-inline">
         <label class="radio">
-         <input name="cliente" type="radio" value="Corretor"/>
-         Corretor
+         <input name="cliente" type="radio" value="Proprietario"/>
+         Propriet&aacute;rio
         </label>
        </div>
       </div>
-    </div>
-
-    <div class="form-group">
-      <label for="predio">
-       Nome do Pr&eacute;dio <span class="asteriskField">*</span>
-      </label>
-       <input class="form-control" id="predio" name="predio" type="text"/>
-    </div>
-
-    <div class="row">
-      <div class="form-group col-sm-6">
-        <label for="apto">
-         N&uacute;mero do Apto <span class="asteriskField">*</span>
-        </label>
-       <input class="form-control" id="apto" name="apto" type="number"/>
-      </div>
-      <div class="form-group col-sm-6">
-        <label for="torre">
-         Torre <span class="asteriskField">*</span>
-        </label>
-       <input class="form-control" id="torre" name="torre" type="text"/>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="proprietario_nome">
-       Nome do Propriet&aacute;rio e/ou Respons&aacute;vel<span class="asteriskField">*</span>
-      </label>
-       <input class="form-control" id="proprietario_nome" name="proprietario_nome" type="text"/>
     </div>
 
     <div class="form-group">
