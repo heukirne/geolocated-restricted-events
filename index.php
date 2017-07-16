@@ -3,6 +3,7 @@ require_once 'core.php';
 
 $idx = isset($_GET['idx']) ? 1 : 0;
 $title = $clientJson['calendarName'][$idx]
+$apiKey = $clientJson['api']
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +15,7 @@ $title = $clientJson['calendarName'][$idx]
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <!-- Include Google Maps Api -->
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=<?=$apiKey?>&libraries=places"></script>
   <!-- Include Project Libs -->
   <script type="text/javascript" src="index.js"></script>
   <link rel="stylesheet" href="index.css"/>
