@@ -160,11 +160,17 @@ foreach($scheduleCost as $eventTime => $eventCost) {
       }
 
       if (($eventCost - $workTime) < $clientJson['maxMinutesDistance']) {
+        if ($eventCost < $clientJson['minMinutesSpend']) {
+          $eventCost = $clientJson['minMinutesSpend'];
+        } else {
+          $eventCost = ((ceil($eventCost/15)*15) -1);
+        }
+
         $eventDateTime = DateTime::createFromFormat('Y-m-d H:i', $dateString.' '.$eventTime, $timeZone);
         $scheduleAvaiable[] = [ 
           'key' =>  $eventDateTime->format('c'), 
           'val' =>  $eventDateTime->format('d/m/Y H:i') . $scheduleMsg,
-          'cost' => ((ceil($eventCost/15)*15) -1),
+          'cost' => $eventCost,
         ];
       }
 

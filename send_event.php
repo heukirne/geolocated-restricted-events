@@ -81,7 +81,7 @@
 				  'attendees' => [
 				  	['email' => $clientJson['emailAdmin']],
 				    ['email' => $clientJson['emailPhotographer'][$idx]],
-				    ['email' => $_POST['email']],
+				    //['email' => $_POST['email']],
 				  ],
 				]);
 
