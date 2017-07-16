@@ -1,3 +1,9 @@
+<?php 
+require_once 'core.php';
+
+$idx = isset($_GET['idx']) ? 1 : 0;
+$title = $clientJson['calendarName'][$idx]
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +24,7 @@
 
 <div class="container">
   <a href="#"><img src="logo.png"></a>
-  <h2>Agendamento de Fotos</h2>
+  <h2><?=$title?></h2>
   <form id="calendar_send" method="post" action="send_event.php">
     <div class="form-group">
       <label for="address">
@@ -174,8 +180,8 @@
        <input class="form-control" id="email" name="email" type="text"/>
     </div>
 
-    <input  id="idx" name="idx" type="hidden" value="0"/>
-    <input  id="tempo" name="tempo" type="hidden" value="0"/>
+    <input  id="idx" name="idx" type="hidden" value="<?=$idx?>"/>
+    <input  id="tempo" name="tempo" type="hidden" value="44"/>
     <button type="submit" name="submit" class="btn btn-primary">Enviar Agendamento</button>
   </form>
 </div>
