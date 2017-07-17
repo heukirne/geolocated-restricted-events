@@ -4,6 +4,7 @@ require_once 'core.php';
 $idx = isset($_GET['idx']) ? 1 : 0;
 $title = $clientJson['calendarName'][$idx];
 $apiKey = $clientJson['api'];
+$url = $clientJson['web']['redirect_uris'][0];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +25,7 @@ $apiKey = $clientJson['api'];
 <body>
 
 <div class="container">
-  <a href="#"><img src="logo.png"></a>
+  <a href="<?=$url?>" target="_parent"><img src="logo.png"></a>
   <h2><?=$title?></h2>
   <form id="calendar_send" method="post" action="send_event.php">
     <div class="form-group">
