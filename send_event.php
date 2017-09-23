@@ -55,8 +55,8 @@ Endereco: ".strtoupper($_POST['address'])."
 Apto: ".strtoupper($_POST['apto'])."
 Torre: ".strtoupper($_POST['torre'])."
 Vaga: ".strtoupper($_POST['vaga'])."
-Metragem: ".strtoupper($_POST['metragem'])." m&sup2;
-Infraestrutura: at&eacute; ".strtoupper($_POST['infra'])." ambientes
+Metragem: ".strtoupper($_POST['metragem'])." M&sup2;
+Infraestrutura: AT&Eacute; ".strtoupper($_POST['infra'])." AMBIENTES
 Chave: ".strtoupper($_POST['chave'])."
 Proprietario Nome: ".strtoupper($_POST['proprietario_nome'])."
 Proprietario Telefone: ".strtoupper($_POST['proprietario_tel'])."
@@ -66,7 +66,7 @@ Obsservacao: ".strtoupper($_POST['obsservacao'])."
 Email: ".$_POST['email']."
 Data: ".$dateStart->format('d/m/Y')."
 Horario: ".$dateStart->format('H:i')."
-Tempo: ".$_POST['tempo']." minutos";
+Tempo: ".$_POST['tempo']." MINUTOS";
 
 				// Create Vent with Notification
 				$event = new Google_Service_Calendar_Event([
