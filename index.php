@@ -140,7 +140,7 @@ $url = $clientJson['web']['redirect_uris'][0];
        <div class="radio-inline">
         <label class="radio">
          <input name="cliente" type="radio" value="Corretor" checked="true"/>
-         Corretor
+         Imobili&aacute;ria
         </label>
        </div>
        <div class="radio-inline">

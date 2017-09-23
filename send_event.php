@@ -16,7 +16,7 @@
 		$idx = $_POST['idx'];
 		$calendarId = $clientJson['calendarId'][$idx];
 
-		$dateNow = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 23:59:59');
+		$dateNow = new DateTime();
 
 		$dateStart = new DateTime($_POST['horario']);
 

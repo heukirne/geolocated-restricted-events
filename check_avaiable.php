@@ -47,12 +47,11 @@ try {
   exit();
 }
 
-$dateNow = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' 23:59:59');
-
+$dateNow = new DateTime();
 $scheduleAvaiable = [];
 
 // Check if needs Delorean ;)
-if ( $dateMin < $dateNow ) {
+if ( $dateMax < $dateNow ) {
   $scheduleAvaiable[] = [ 
     'key' =>  date('c'), 
     'val' =>  'Data ultrapassado, tente outra data!'
