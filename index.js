@@ -71,14 +71,14 @@ $(document).ready(function() {
 
 		if (place) {
 			place.address_components.forEach(function(item) {
-				if (item.short_name.indexOf("Porto Alegre") == 0) {
+				if (item.short_name.indexOf("RS") == 0) {
 					validPlace = true;
 				}
 			});
 		}
 
 		if (!validPlace) {
-			alert('Preencha um endereco em Porto Alegre.');
+			alert('Preencha um endereco no Rio Grande do Sul.');
 			return false;
 		}
 

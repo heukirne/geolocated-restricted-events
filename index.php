@@ -79,23 +79,23 @@ $url = $clientJson['web']['redirect_uris'][0];
          <select class="select form-control" id="metragem" name="metragem">
           <option value="">Selecione a metragem</option>
           <option value="100">at&eacute; 100m&sup2;</option>
-          <option value="150">at&eacute; 100m&sup2;</option>
+          <option value="150">at&eacute; 150m&sup2;</option>
           <option value="200">at&eacute; 200m&sup2;</option>
-          <option value="250">at&eacute; 100m&sup2;</option>
+          <option value="250">at&eacute; 250m&sup2;</option>
           <option value="300">at&eacute; 300m&sup2;</option>
-          <option value="350">at&eacute; 100m&sup2;</option>
+          <option value="350">at&eacute; 350m&sup2;</option>
           <option value="400">at&eacute; 400m&sup2;</option>
-          <option value="450">at&eacute; 100m&sup2;</option>
+          <option value="450">at&eacute; 450m&sup2;</option>
           <option value="500">at&eacute; 500m&sup2;</option>
-          <option value="550">at&eacute; 100m&sup2;</option>
+          <option value="550">at&eacute; 550m&sup2;</option>
           <option value="600">at&eacute; 600m&sup2;</option>
-          <option value="650">at&eacute; 100m&sup2;</option>
+          <option value="650">at&eacute; 650m&sup2;</option>
           <option value="700">at&eacute; 700m&sup2;</option>
-          <option value="750">at&eacute; 100m&sup2;</option>
+          <option value="750">at&eacute; 750m&sup2;</option>
           <option value="800">at&eacute; 800m&sup2;</option>
-          <option value="850">at&eacute; 100m&sup2;</option>
+          <option value="850">at&eacute; 850m&sup2;</option>
           <option value="900">at&eacute; 900m&sup2;</option>
-          <option value="950">at&eacute; 100m&sup2;</option>
+          <option value="950">at&eacute; 950m&sup2;</option>
           <option value="1000">at&eacute; 1000m&sup2;</option>
          </select>
       </div>
@@ -106,9 +106,9 @@ $url = $clientJson['web']['redirect_uris'][0];
          <select class="select form-control" id="infra" name="infra">
           <option value="">Selecione a infraestrutura</option>
           <option value="0">sem infraestrutura</option>
-          <option value="5">até 5 ambientes</option>
-          <option value="10">até 10 ambientes</option>
-          <option value="20">até 20 ambientes</option>
+          <option value="5">at&eacute; 5 ambientes</option>
+          <option value="10">at&eacute; 10 ambientes</option>
+          <option value="20">at&eacute; 20 ambientes</option>
           <option value="60">mais que 20 ambientes</option>
          </select>
       </div>
@@ -168,9 +168,9 @@ $url = $clientJson['web']['redirect_uris'][0];
 
     <div class="form-group">
       <label for="chave">
-       Chave <span class="asteriskField">*</span>
+       Chave
       </label>
-       <input class="form-control" id="chave" name="chave" type="text"/>
+       <input class="form-control" id="chave" name="chave" type="text" value=" "/>
     </div>
 
     <div id="corretor-div">
@@ -207,9 +207,9 @@ $url = $clientJson['web']['redirect_uris'][0];
 
     <div class="form-group">
       <label for="obsservacao">
-       Observação <span class="asteriskField">*</span>
+       Observação
       </label>
-       <textarea class="form-control" id="obsservacao" name="obsservacao" type="text" rows="4"></textarea>
+       <textarea class="form-control" id="obsservacao" name="obsservacao" type="text" rows="4"> </textarea>
     </div>
 
     <input  id="idx" name="idx" type="hidden" value="<?=$idx?>"/>

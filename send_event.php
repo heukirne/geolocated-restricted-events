@@ -48,10 +48,25 @@
 				$dateEnd = new DateTime($_POST['horario']);
 				$dateEnd->add(new DateInterval('PT'.$_POST['tempo'].'M'));
 
-				$description = "";
-				foreach($_POST as $field => $value) {
-					$description .= ucfirst($field) . ": $value \n";
-				}
+$description = "
+Imobiliaria: ".strtoupper($_POST['imobiliaria'])."
+Predio: ".strtoupper($_POST['predio'])."
+Endereco: ".strtoupper($_POST['address'])."
+Apto: ".strtoupper($_POST['apto'])."
+Torre: ".strtoupper($_POST['torre'])."
+Vaga: ".strtoupper($_POST['vaga'])."
+Metragem: ".strtoupper($_POST['metragem'])." m&sup2;
+Infraestrutura: at&eacute; ".strtoupper($_POST['infra'])." ambientes
+Chave: ".strtoupper($_POST['chave'])."
+Proprietario Nome: ".strtoupper($_POST['proprietario_nome'])."
+Proprietario Telefone: ".strtoupper($_POST['proprietario_tel'])."
+Corretor Nome: ".strtoupper($_POST['corretor_nome'])."
+Corretor Telefone: ".strtoupper($_POST['corretor_tel'])."
+Obsservacao: ".strtoupper($_POST['obsservacao'])."
+Email: ".$_POST['email']."
+Data: ".$dateStart->format('d/m/Y')."
+Horario: ".$dateStart->format('H:i')."
+Tempo: ".$_POST['tempo']." minutos";
 
 				// Create Vent with Notification
 				$event = new Google_Service_Calendar_Event([
