@@ -20,7 +20,7 @@ $infra = '';
 
 if ($_DEBUG) {
   $address = 'Avenida Ipiranga, 7200 - Jardim Botânico, Porto Alegre - RS, 91530-000, Brasil';
-  $dateString = '2017-07-18';
+  $dateString = date('Y-m-d');
   $idx = 0;
   $metragem = 400;
   $infra = 10;

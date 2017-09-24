@@ -120,8 +120,8 @@ $(document).ready(function() {
 				idx: $('#idx').val(),
 				address: $('#address').val(),
 				date: $('#date').val(),
-				metragem: $('[name=metragem]:checked').val(),
-				infra: $('[name=infra]:checked').val(),
+				metragem: $('[name=metragem]').val(),
+				infra: $('[name=infra]').val(),
 			})
 			.done(function(data) {
 
