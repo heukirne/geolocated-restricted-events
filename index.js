@@ -45,7 +45,7 @@ $(document).ready(function() {
 		if ($('[name=cliente]:checked').length == 0) {
 			isValid = false;
 		}
-		if ($('[name=horario] option:selected').val().length == 0) {
+		if ($('[name=horario] option:selected').val().length == 0 && !$("#horario").prop('disabled')) {
 			isValid = false;
 		}
 
@@ -55,6 +55,23 @@ $(document).ready(function() {
 				isValid = false;
 			}
 		});
+
+		var place = autocomplete.getPlace();
+		var street = "";
+		var number = "";
+
+		if (place) {
+			place.address_components.forEach(function(item) {
+				if (item.types[0].indexOf("route") == 0) {
+					street = item.short_name;
+				}
+				if (item.types[0].indexOf("street_number") == 0) {
+					number = item.short_name;
+				}
+			});
+		}
+
+		$('#title').val(street +", "+ number)
 
 		if (!isValid) {
 			alert('Todos os campos sao obrigatorios.');
@@ -138,6 +155,20 @@ $(document).ready(function() {
 		} else {
 			$("#corretor-div").show();
 			$(".corretor-fields").prop('disabled', false);
+		}
+	});
+
+	$('input[name="livre"]:checkbox').change(function() {
+		if ($('input[name="livre"]:checked').val() == "livre") {
+			$("#chave-div").show();
+			$(".horario-div").hide();
+			$("#chave").prop('disabled', false);
+			$("#horario").prop('disabled', true);
+		} else {
+			$("#chave-div").hide();
+			$(".horario-div").show();
+			$("#chave").prop('disabled', true);
+			$("#horario").prop('disabled', false);
 		}
 	});
 

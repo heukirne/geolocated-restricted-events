@@ -115,13 +115,30 @@ $url = $clientJson['web']['redirect_uris'][0];
     </div>
 
     <div class="form-group">
+      <div>
+       <div class="radio-inline">
+        <label class="checkbox">
+         <input name="livre" type="checkbox" value="livre"/>
+         Hor&aacute;rio livre (chave disponível)
+        </label>
+       </div>
+      <div id="chave-div" style="display:none;">
+        <label for="chave">
+         Chave <span class="asteriskField">*</span>
+        </label>
+         <input class="form-control" id="chave" name="chave" type="text" disabled="true"/>
+      </div>
+      </div>
+    </div>
+
+    <div class="form-group horario-div">
        <button class="btn btn-primary" name="submit" type="button" id="checkAvaiable">
         Verificar Disponibilidade
        </button>
        <div id="loader"></div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group horario-div">
       <label for="horario">
        Selecione um hor&aacute;rio <span class="asteriskField">*</span>
       </label>
@@ -166,13 +183,6 @@ $url = $clientJson['web']['redirect_uris'][0];
        <input class="form-control" id="proprietario_tel" name="proprietario_tel" type="tel" placeholder="(##) 9.####.####"/>
     </div>
 
-    <div class="form-group">
-      <label for="chave">
-       Chave
-      </label>
-       <input class="form-control" id="chave" name="chave" type="text" value=" "/>
-    </div>
-
     <div id="corretor-div">
 
       <div class="form-group">
@@ -214,6 +224,7 @@ $url = $clientJson['web']['redirect_uris'][0];
 
     <input  id="idx" name="idx" type="hidden" value="<?=$idx?>"/>
     <input  id="tempo" name="tempo" type="hidden" value="44"/>
+    <input  id="title" name="title" type="hidden" value=" "/>
     <button type="submit" name="submit" class="btn btn-primary">Enviar Agendamento</button>
   </form>
 </div>

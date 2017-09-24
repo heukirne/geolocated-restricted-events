@@ -17,14 +17,17 @@
 		$calendarId = $clientJson['calendarId'][$idx];
 
 		$dateNow = new DateTime();
-
 		$dateStart = new DateTime($_POST['horario']);
+
+		if (!empty($_POST['livre'])) {
+  			$dateStart = DateTime::createFromFormat('Y-m-d H:i:s', $_POST['date'] . ' 20:00:00');
+		}
 
 		if ( $dateStart < $dateNow ) {
 			$msg = "Horário ultrapassado, tente outro horário!";
 		} else {
 
-			$dateEnd = new DateTime($_POST['horario']);
+			$dateEnd = clone $dateStart;
 			$dateEnd->add(new DateInterval('PT'.$_POST['tempo'].'M'));
 
 			// Load the next 20 events on the user's calendar.
@@ -37,16 +40,11 @@
 			);
 			$results = $service->events->listEvents($calendarId, $optParams);
 
-			if (count($results) > 0) {
+			if (count($results) > 0 && empty($_POST['livre'])) {
 				$msg = "Horário indisponível, tente outro horário!";
 			} else {
 
 				// Send event to Calendar
-
-				$dateStart = new DateTime($_POST['horario']);
-
-				$dateEnd = new DateTime($_POST['horario']);
-				$dateEnd->add(new DateInterval('PT'.$_POST['tempo'].'M'));
 
 $description = "
 Imobiliaria: ".strtoupper($_POST['imobiliaria'])."
@@ -70,7 +68,7 @@ Tempo: ".$_POST['tempo']." MINUTOS";
 
 				// Create Vent with Notification
 				$event = new Google_Service_Calendar_Event([
-				  'summary' => $_POST['predio'],
+				  'summary' => $_POST['title'],
 				  'location' => $_POST['address'],
 				  'description' => $description,
 				  'start' => [
